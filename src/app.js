@@ -28,6 +28,9 @@ app.get('/health', async (req, res) => {
 // User routes
 app.use('/users', require('./routes/userRoutes'));
 
+// Session ID routes
+app.use('/sessions', require('./routes/sessionRoutes.js'));
+
 // Auth routes
 app.use('/auth', require('./routes/authRoutes'));
 

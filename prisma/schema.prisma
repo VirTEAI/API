@@ -11,10 +11,22 @@ datasource db {
 }
 
 model User {
-  id               Int      @id @default(autoincrement())
+  userId               Int      @id @default(autoincrement())
   email            String   @unique
   name             String?
   password         String
   resetToken       String?
   resetTokenExpiry DateTime?
+  sessionId        String?  @unique
+  sessionIdExpiry  DateTime?
+  sessions         SessionData[]
+}
+
+model SessionData {
+  sessionDataId        Int      @id @default(autoincrement())
+  userId               Int
+  data                 Json
+  createdAt            DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [sessionDataId])
 }
