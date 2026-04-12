@@ -30,7 +30,7 @@ const getSessionData = async (req, res) => {
 
     const { userId } = req.params;
 
-    const user = await prisma.user.findUnique({ where: { userId } });
+    const user = await prisma.user.findUnique({ where: { userId: parseInt(userId) } });
 
     const sessionData = await prisma.sessionData.findMany({
         where: { userId: user.userId }
