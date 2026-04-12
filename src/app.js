@@ -7,7 +7,9 @@ const app = express();
 app.use(express.json());
 
 // Initialize Prisma Client
-const prisma = new PrismaClient();
+const prisma = new PrismaClient({
+  log: ['query', 'info', 'warn', 'error'],
+});
 
 // Routes
 // Example route
@@ -27,6 +29,9 @@ app.get('/health', async (req, res) => {
 
 // User routes
 app.use('/users', require('./routes/userRoutes'));
+
+// Session ID routes
+app.use('/sessions', require('./routes/sessionRoutes.js'));
 
 // Auth routes
 app.use('/auth', require('./routes/authRoutes'));

@@ -23,4 +23,29 @@ const createUser = async (req, res) => {
   }
 };
 
-module.exports = { getUsers, createUser };
+// Mudar depois o método de pegar id do usuário
+const getSessionData = async (req, res) => {
+
+  try {
+
+    const { userId } = req.params;
+
+    const user = await prisma.user.findUnique({ where: { userId: parseInt(userId) } });
+
+    const sessionData = await prisma.sessionData.findMany({
+        where: { userId: user.userId }
+    });
+
+    if (sessionData.length === 0) {
+
+        return res.status(404).json({ error: 'Dados de sessão não encontrados para o usuário fornecido' });
+    }
+
+    res.json(sessionData);
+  } catch (error) {
+
+    res.status(500).json({ error: error.message });
+  }
+};
+
+module.exports = { getUsers, createUser, getSessionData };
