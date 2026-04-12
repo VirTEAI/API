@@ -24,7 +24,7 @@ const getSessionId = async (req, res) => {
             return res.status(404).json({ error: "Usuário não encontrado ou ID da sessão inválido" });
         }
 
-        return res.status(200).json(true);
+        return res.status(200).send(true);
     } catch (error) {
 
         res.status(500).json({ error: error.message });
