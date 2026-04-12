@@ -50,7 +50,7 @@ const generateSessionId = async (req, res) => {
     const threeHours = 3 * 60 * 60 * 1000;
 
     // Atualiza o usuário com o novo sessionId e a data de expiração
-    await prisma.session.update({
+    await prisma.user.update({
         where: { userId: currentUser.id },
         data: { sessionId, sessionIdExpiry: new Date(Date.now() + threeHours) } // Expira em 3 horas
     });
