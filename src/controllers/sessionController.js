@@ -44,14 +44,14 @@ const generateSessionId = async (req, res) => {
 
     if (!currentUser) {
 
-      return res.status(404).json({ error: 'User não encontrado' });
+      return res.status(404).json({ error: 'Usuário não encontrado' });
     }
 
     const threeHours = 3 * 60 * 60 * 1000;
 
     // Atualiza o usuário com o novo sessionId e a data de expiração
     await prisma.user.update({
-        where: { userId: currentUser.id },
+        where: { userId: currentUser.userId },
         data: { sessionId, sessionIdExpiry: new Date(Date.now() + threeHours) } // Expira em 3 horas
     });
 
@@ -92,14 +92,14 @@ const attachSessionData = async (req, res) => {
         // Criamos um novo registro de SessionData para o usuário
         const sessionData = await prisma.sessionData.create({
             data: {
-                userId: user.id,
+                userId: user.userId,
                 data: sessionPayload,
             },
         });
 
         // Limpamos o sessionId do usuário para evitar reutilização
         await prisma.user.update({
-            where: { id: user.id },
+            where: { userId: user.userId },
             data: {
                 sessionId: null,
                 sessionIdExpiry: null,
