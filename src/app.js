@@ -7,7 +7,9 @@ const app = express();
 app.use(express.json());
 
 // Initialize Prisma Client
-const prisma = new PrismaClient();
+const prisma = new PrismaClient({
+  log: ['query', 'info', 'warn', 'error'],
+});
 
 // Routes
 // Example route
