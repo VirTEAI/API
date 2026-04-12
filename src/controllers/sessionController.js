@@ -7,7 +7,7 @@ const prisma = new PrismaClient();
 const getSessionId = async (req, res) => {
     try {
 
-        const { sessionId } = req.body;
+        const { sessionId } = req.params;
 
         if (!sessionId) {
 

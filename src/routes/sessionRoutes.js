@@ -3,7 +3,7 @@ const { getSessionId, generateSessionId, attachSessionData } = require('../contr
 
 const router = express.Router();
 
-router.get('/get-id', getSessionId);
+router.get('get-id/:sessionId', getSessionId);
 router.post('/generate-id', generateSessionId);
 router.post('/attach', attachSessionData);
 
