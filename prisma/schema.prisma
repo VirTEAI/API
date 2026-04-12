@@ -28,5 +28,5 @@ model SessionData {
   data                 Json
   createdAt            DateTime @default(now())
 
-  user User @relation(fields: [userId], references: [sessionDataId])
+  user User @relation(fields: [userId], references: [userId])
 }
