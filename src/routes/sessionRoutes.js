@@ -1,9 +1,10 @@
 const express = require('express');
-const { attachSessionData, generateSessionId } = require('../controllers/sessionController');
+const { getSessionId, generateSessionId, attachSessionData } = require('../controllers/sessionController');
 
 const router = express.Router();
 
-router.post('/attach', attachSessionData);
+router.get('/get-id', getSessionId);
 router.post('/generate-id', generateSessionId);
+router.post('/attach', attachSessionData);
 
 module.exports = router;
