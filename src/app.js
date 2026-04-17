@@ -1,5 +1,6 @@
 const express = require('express');
 const { PrismaClient } = require('@prisma/client');
+const { swaggerUi, swaggerSpec } = require('../swagger.js');
 
 const app = express();
 
@@ -26,6 +27,10 @@ app.get('/health', async (req, res) => {
     res.status(500).json({ status: 'error', database: 'disconnected' });
   }
 });
+
+// Swagger documentation
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.get('/api-docs.json', (req, res) => res.json(swaggerSpec));
 
 // User routes
 app.use('/users', require('./routes/userRoutes'));
