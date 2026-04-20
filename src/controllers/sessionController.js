@@ -3,118 +3,154 @@ const crypto = require('crypto');
 
 const prisma = new PrismaClient();
 
-// Pega o ID da sessão para confirmar que é válido
+const SESSION_TTL_MS = 3 * 60 * 60 * 1000;
+
+const hashValue = (value) =>
+  crypto.createHash('sha256').update(value).digest('hex');
+
+const generateSecureSessionId = () =>
+    crypto.randomInt(1000000, 10000000).toString(); 
+
 const getSessionId = async (req, res) => {
-    try {
 
-        const { sessionId } = req.params;
+  try {
 
-        if (!sessionId) {
+    const { sessionId } = req.params;
 
-            return res.status(400).json({ error: "ID da sessão é obrigatório" });
-        }
+    if (!sessionId || typeof sessionId !== 'string') {
 
-        const user = await prisma.user.findUnique({
-            where: { sessionId },
-        });
-
-        // Verificamos se o usuário existe e se o sessionId ainda é válido (não expirou)
-        if (!user || !user.sessionIdExpiry || user.sessionIdExpiry < new Date()) {
-
-            return res.status(404).json({ error: "Usuário não encontrado ou ID da sessão inválido" });
-        }
-
-        return res.status(200).send(true);
-    } catch (error) {
-
-        res.status(500).json({ error: error.message });
+      return res.status(400).json({ error: 'ID da sessão é obrigatório' });
     }
-}
 
-// Gera um ID de sessão para o usuário e armazena no banco de dados
+    const sessionIdHash = hashValue(sessionId);
+
+    const user = await prisma.user.findFirst({
+      where: {
+        sessionIdHash,
+        sessionIdExpiry: {
+          gt: new Date()
+        }
+      },
+      select: {
+        id: true
+      }
+    });
+
+    if (!user) {
+
+      return res.status(404).json({ error: 'ID da sessão inválido ou expirado' });
+    }
+
+    return res.status(200).json({ valid: true });
+  } catch (error) {
+
+    return res.status(500).json({ error: 'Erro ao verificar ID da sessão' });
+  }
+};
+
 const generateSessionId = async (req, res) => {
 
   try {
 
-    const sessionId = crypto.randomInt(100000, 1000000).toString();
-    
-    const { email } = req.body;
+    const email = String(req.body.email || '').trim().toLowerCase();
 
-    const currentUser = await prisma.user.findUnique({ where: { email } });
+    if (!email) {
+
+      return res.status(400).json({ error: 'Email é obrigatório' });
+    }
+
+    const currentUser = await prisma.user.findUnique({
+      where: { email },
+      select: { id: true, email: true }
+    });
 
     if (!currentUser) {
 
       return res.status(404).json({ error: 'Usuário não encontrado' });
     }
 
-    const threeHours = 3 * 60 * 60 * 1000;
+    const sessionId = generateSecureSessionId();
+    const sessionIdHash = hashValue(sessionId);
+    const sessionIdExpiry = new Date(Date.now() + SESSION_TTL_MS);
 
-    // Atualiza o usuário com o novo sessionId e a data de expiração
     await prisma.user.update({
-        where: { userId: currentUser.userId },
-        data: { sessionId, sessionIdExpiry: new Date(Date.now() + threeHours) } // Expira em 3 horas
+      where: { id: currentUser.id },
+      data: {
+        sessionIdHash,
+        sessionIdExpiry
+      }
     });
 
-    res.json(sessionId);
+    return res.status(200).json({
+      sessionId,
+      expiresInMinutes: 180
+    });
   } catch (error) {
 
-    res.status(500).json({ error: error.message });
+    return res.status(500).json({ error: 'Erro ao gerar ID da sessão' });
   }
 };
 
 const attachSessionData = async (req, res) => {
 
-    try {
+  try {
 
-        const body = req.body;
+    const body = req.body;
 
-        if (!body || !body.sessionId) {
+    if (!body || !body.sessionId) {
 
-            return res.status(400).json({
-
-                error: "ID da sessão é obrigatório",
-            });
-        }
-
-        const { sessionId, ...sessionPayload } = body;
-
-        // Achamos o usuário pelo sessionId
-        const user = await prisma.user.findUnique({
-            where: { sessionId },
-        });
-
-        if (!user) {
-            return res.status(404).json({
-                error: "Usuário não encontrado para o sessionId fornecido",
-            });
-        }
-
-        // Criamos um novo registro de SessionData para o usuário
-        const sessionData = await prisma.sessionData.create({
-            data: {
-                userId: user.userId,
-                data: sessionPayload,
-            },
-        });
-
-        // Limpamos o sessionId do usuário para evitar reutilização
-        await prisma.user.update({
-            where: { userId: user.userId },
-            data: {
-                sessionId: null,
-                sessionIdExpiry: null,
-            },
-        });
-
-        return res.status(200).json({
-            message: "Dados da sessão anexados com sucesso",
-            sessionData,
-        });
-
-    } catch (error) {
-
-        res.status(500).json({ error: error.message });
+      return res.status(400).json({ error: 'ID da sessão é obrigatório' });
     }
+
+    const { sessionId, ...sessionPayload } = body;
+    const sessionIdHash = hashValue(String(sessionId));
+
+    const user = await prisma.user.findFirst({
+      where: {
+        sessionIdHash,
+        sessionIdExpiry: {
+          gt: new Date()
+        }
+      },
+      select: {
+        id: true
+      }
+    });
+
+    if (!user) {
+      return res.status(404).json({
+
+        error: 'Usuário não encontrado para o sessionId fornecido'
+      });
+    }
+
+    const result = await prisma.$transaction(async (tx) => {
+      const sessionData = await tx.sessionData.create({
+        data: {
+          userId: user.id,
+          data: sessionPayload
+        }
+      });
+
+      await tx.user.update({
+        where: { id: user.id },
+        data: {
+          sessionIdHash: null,
+          sessionIdExpiry: null
+        }
+      });
+
+      return sessionData;
+    });
+
+    return res.status(200).json({
+      message: 'Dados da sessão anexados com sucesso',
+      sessionData: result
+    });
+  } catch (error) {
+
+    return res.status(500).json({ error: 'Erro ao anexar dados da sessão' });
+  }
 };
 
 module.exports = { getSessionId, generateSessionId, attachSessionData };
