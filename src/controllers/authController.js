@@ -72,13 +72,14 @@ const register = async (req, res) => {
     return res.status(201).json({
       message: 'User created',
       user: {
-        id: user.id,
+        userId: user.userId,
         name: user.name,
         email: user.email
       }
     });
   } catch (error) {
 
+    console.error('Error in register:', error);
     return res.status(500).json({ error: 'Erro ao criar usuário' });
   }
 };
@@ -110,7 +111,7 @@ const login = async (req, res) => {
     }
 
     const token = jwt.sign(
-      { id: user.id, email: user.email },
+      { userId: user.userId, email: user.email },
       JWT_SECRET,
       {
         expiresIn: JWT_EXPIRES_IN,
@@ -229,7 +230,7 @@ const resetPassword = async (req, res) => {
     const hashedPassword = await bcrypt.hash(newPassword, 12);
 
     await prisma.user.update({
-      where: { id: user.id },
+      where: { userId: user.userId },
       data: {
         password: hashedPassword,
         resetToken: null,

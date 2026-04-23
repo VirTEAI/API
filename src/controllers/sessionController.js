@@ -32,7 +32,7 @@ const getSessionId = async (req, res) => {
         }
       },
       select: {
-        id: true
+        userId: true
       }
     });
 
@@ -61,7 +61,7 @@ const generateSessionId = async (req, res) => {
 
     const currentUser = await prisma.user.findUnique({
       where: { email },
-      select: { id: true, email: true }
+      select: { userId: true, email: true }
     });
 
     if (!currentUser) {
@@ -74,7 +74,7 @@ const generateSessionId = async (req, res) => {
     const sessionIdExpiry = new Date(Date.now() + SESSION_TTL_MS);
 
     await prisma.user.update({
-      where: { id: currentUser.id },
+      where: { userId: currentUser.userId },
       data: {
         sessionIdHash,
         sessionIdExpiry
@@ -87,6 +87,7 @@ const generateSessionId = async (req, res) => {
     });
   } catch (error) {
 
+    console.error('Erro ao gerar ID da sessão:', error);
     return res.status(500).json({ error: 'Erro ao gerar ID da sessão' });
   }
 };
@@ -113,7 +114,7 @@ const attachSessionData = async (req, res) => {
         }
       },
       select: {
-        id: true
+        userId: true
       }
     });
 
@@ -127,13 +128,13 @@ const attachSessionData = async (req, res) => {
     const result = await prisma.$transaction(async (tx) => {
       const sessionData = await tx.sessionData.create({
         data: {
-          userId: user.id,
+          userId: user.userId,
           data: sessionPayload
         }
       });
 
       await tx.user.update({
-        where: { id: user.id },
+        where: { userId: user.userId },
         data: {
           sessionIdHash: null,
           sessionIdExpiry: null

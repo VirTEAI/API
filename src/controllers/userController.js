@@ -11,7 +11,7 @@ const getUsers = async (req, res) => {
 
     const users = await prisma.user.findMany({
       select: {
-        id: true,
+        userId: true,
         name: true,
         email: true,
         createdAt: true,
@@ -56,7 +56,7 @@ const createUser = async (req, res) => {
     const user = await prisma.user.create({
       data: { email, name },
       select: {
-        id: true,
+        userId: true,
         name: true,
         email: true,
         createdAt: true
@@ -83,8 +83,8 @@ const getSessionData = async (req, res) => {
     }
 
     const user = await prisma.user.findUnique({
-      where: { id: userId },
-      select: { id: true }
+      where: { userId },
+      select: { userId: true }
     });
 
     if (!user) {
@@ -93,7 +93,7 @@ const getSessionData = async (req, res) => {
     }
 
     const sessionData = await prisma.sessionData.findMany({
-      where: { userId: user.id }
+      where: { userId: user.userId }
     });
 
     if (sessionData.length === 0) {
@@ -106,7 +106,7 @@ const getSessionData = async (req, res) => {
     return res.json(sessionData);
   } catch (error) {
 
-    return res.status(500).json({ error: 'Erro ao buscar dados de sessão' });
+    return res.status(500).json({ error: 'Erro ao buscar dados de sessão:' + error.message });
   }
 };
 

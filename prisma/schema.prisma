@@ -17,7 +17,7 @@ model User {
   password         String
   resetToken       String?
   resetTokenExpiry DateTime?
-  sessionId        String?  @unique
+  sessionIdHash    String?  @unique
   sessionIdExpiry  DateTime?
   sessions         SessionData[]
 }
