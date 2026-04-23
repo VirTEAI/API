@@ -5,7 +5,20 @@ const {
   attachSessionData
 } = require('../controllers/sessionController');
 
+const auth = require('../middlewares/authMiddleware');
+const rateLimit = require('express-rate-limit');
+
 const router = express.Router();
+
+const validateLimiter = rateLimit({
+  windowMs: 10 * 60 * 1000,
+  max: 50
+});
+
+const attachLimiter = rateLimit({
+  windowMs: 10 * 60 * 1000,
+  max: 30
+});
 
 /**
  * @openapi
@@ -16,7 +29,7 @@ const router = express.Router();
 
 /**
  * @openapi
- * /sessions/get-id/{sessionId}:
+ * /sessions/{sessionId}:
  *   get:
  *     tags: [Sessions]
  *     summary: Validar ID da sessão
@@ -27,47 +40,37 @@ const router = express.Router();
  *         required: true
  *         schema:
  *           type: string
- *         example: "123456"
+ *         example: "1234567..."
  *     responses:
  *       200:
  *         description: ID de sessão válido
  *       404:
- *         description: ID de sessão inválido ou expirado
+ *         description: ID inválido ou expirado
  *       400:
- *         description: ID de sessão ausente
+ *         description: ID ausente ou inválido
  *       500:
  *         description: Erro do servidor
  */
-router.get('/get-id/:sessionId', getSessionId);
+router.get('/:sessionId', validateLimiter, getSessionId);
 
 /**
  * @openapi
- * /sessions/generate-id:
+ * /sessions/generate:
  *   post:
  *     tags: [Sessions]
  *     summary: Gerar ID de sessão
- *     description: Gera um ID de sessão temporário vinculado a um email de usuário
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required: [email]
- *             properties:
- *               email:
- *                 type: string
- *                 format: email
- *                 example: user@email.com
+ *     description: Gera um token de sessão temporário (uso único)
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
- *         description: ID de sessão gerado
- *       404:
- *         description: Usuário não encontrado
+ *         description: Token gerado com sucesso
+ *       401:
+ *         description: Não autenticado
  *       500:
  *         description: Erro do servidor
  */
-router.post('/generate-id', generateSessionId);
+router.post('/generate', auth, generateSessionId);
 
 /**
  * @openapi
@@ -75,7 +78,7 @@ router.post('/generate-id', generateSessionId);
  *   post:
  *     tags: [Sessions]
  *     summary: Anexar dados de sessão
- *     description: Armazena dados relacionados à sessão e invalida o ID da sessão
+ *     description: Armazena dados e invalida o token (uso único)
  *     requestBody:
  *       required: true
  *       content:
@@ -86,20 +89,20 @@ router.post('/generate-id', generateSessionId);
  *             properties:
  *               sessionId:
  *                 type: string
- *                 example: "123456"
+ *                 example: "1234567..."
  *               data:
  *                 type: object
- *                 example: { gaze: "left", duration: 120 }
+ *                 example: { gaze: "objeto_cogumelo", durationSeconds: 5 }
  *     responses:
  *       200:
- *         description: Dados de sessão anexados com sucesso
+ *         description: Dados armazenados com sucesso
  *       400:
- *         description: ID de sessão ausente
+ *         description: Dados inválidos
  *       404:
- *         description: Sessão não encontrada
+ *         description: Token inválido ou expirado
  *       500:
  *         description: Erro do servidor
  */
-router.post('/attach', attachSessionData);
+router.post('/attach', attachLimiter, attachSessionData);
 
 module.exports = router;

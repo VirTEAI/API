@@ -1,5 +1,5 @@
 const express = require('express');
-const { register, login, forgotPassword } = require('../controllers/authController');
+const { register, login, forgotPassword, resetPassword } = require('../controllers/authController');
 
 const router = express.Router();
 
@@ -16,7 +16,7 @@ const router = express.Router();
  *   post:
  *     tags: [Auth]
  *     summary: Registrar usuário
- *     description: Cria um novo usuário com email, nome e senha criptografada
+ *     description: Cria um novo usuário com senha forte criptografada
  *     requestBody:
  *       required: true
  *       content:
@@ -35,10 +35,14 @@ const router = express.Router();
  *               password:
  *                 type: string
  *                 format: password
- *                 example: 123456
+ *                 example: StrongPass123
  *     responses:
  *       201:
  *         description: Usuário criado
+ *       400:
+ *         description: Dados inválidos
+ *       409:
+ *         description: Email já em uso
  *       500:
  *         description: Erro do servidor
  */
@@ -66,10 +70,12 @@ router.post('/register', register);
  *               password:
  *                 type: string
  *                 format: password
- *                 example: 123456
+ *                 example: StrongPass123
  *     responses:
  *       200:
- *         description: Login bem-sucedido, token JWT retornado
+ *         description: Login bem-sucedido
+ *       400:
+ *         description: Dados inválidos
  *       401:
  *         description: Credenciais inválidas
  *       500:
@@ -83,7 +89,7 @@ router.post('/login', login);
  *   post:
  *     tags: [Auth]
  *     summary: Esqueci minha senha
- *     description: Gera token de reset e envia email para usuário
+ *     description: Sempre retorna sucesso para evitar enumeração de usuários
  *     requestBody:
  *       required: true
  *       content:
@@ -98,12 +104,42 @@ router.post('/login', login);
  *                 example: john@email.com
  *     responses:
  *       200:
- *         description: Email de reset enviado
- *       404:
- *         description: Usuário não encontrado
+ *         description: Se o email existir, o link de reset foi enviado
  *       500:
  *         description: Erro do servidor
  */
 router.post('/forgot-password', forgotPassword);
+
+/**
+ * @openapi
+ * /auth/reset-password:
+ *   post:
+ *     tags: [Auth]
+ *     summary: Redefinir senha
+ *     description: Redefine a senha usando token válido
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [token, password]
+ *             properties:
+ *               token:
+ *                 type: string
+ *                 example: reset_token_here
+ *               password:
+ *                 type: string
+ *                 format: password
+ *                 example: NewStrongPass123
+ *     responses:
+ *       200:
+ *         description: Senha redefinida com sucesso
+ *       400:
+ *         description: Token inválido ou expirado
+ *       500:
+ *         description: Erro do servidor
+ */
+router.post('/reset-password', resetPassword);
 
 module.exports = router;

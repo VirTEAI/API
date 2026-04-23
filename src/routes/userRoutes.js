@@ -1,5 +1,7 @@
 const express = require('express');
 const { getUsers, createUser, getSessionData } = require('../controllers/userController');
+const auth = require('../middlewares/authMiddleware');
+// const isAdmin = require('../middlewares/adminMiddleware.js');
 
 const router = express.Router();
 
@@ -16,52 +18,36 @@ const router = express.Router();
  *   get:
  *     tags: [Users]
  *     summary: Listar usuários
- *     description: Retorna uma lista de todos os usuários
+ *     description: Retorna uma lista de usuários (apenas admin)
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: Lista de usuários
+ *       401:
+ *         description: Não autenticado
+ *       403:
+ *         description: Sem permissão (não é admin)
  *       500:
  *         description: Erro do servidor
  */
-router.get('/', getUsers);
+router.get('/', auth, getUsers);
 
 /**
- * @openapi
- * /users:
- *   post:
- *     tags: [Users]
- *     summary: Criar usuário sem autenticação
- *     description: Cria um novo usuário sem necessidade de autenticação (para testes)
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required: [email, name]
- *             properties:
- *               email:
- *                 type: string
- *                 format: email
- *                 example: user@email.com
- *               name:
- *                 type: string
- *                 example: Jane Doe
- *     responses:
- *       200:
- *         description: Usuário criado
- *       500:
- *         description: Erro do servidor
+ * ⚠️ Ideal: remover essa rota em produção
+ * Use /auth/register em vez disso
  */
-router.post('/', createUser);
+router.post('/', auth, createUser);
 
 /**
  * @openapi
  * /users/session-data/{userId}:
  *   get:
  *     tags: [Users]
- *     summary: Obter dados de sessão para um usuário
- *     description: Recupera todos os registros de dados de sessão vinculados a um usuário
+ *     summary: Obter dados de sessão
+ *     description: Retorna dados de sessão do próprio usuário ou admin
+ *     security:
+ *       - bearerAuth: []
  *     parameters:
  *       - in: path
  *         name: userId
@@ -72,11 +58,17 @@ router.post('/', createUser);
  *     responses:
  *       200:
  *         description: Dados de sessão recuperados
+ *       400:
+ *         description: userId inválido
+ *       401:
+ *         description: Não autenticado
+ *       403:
+ *         description: Sem permissão
  *       404:
- *         description: Nenhum dado de sessão encontrado
+ *         description: Não encontrado
  *       500:
  *         description: Erro do servidor
  */
-router.get('/session-data/:userId', getSessionData);
+router.get('/session-data/:userId', auth, getSessionData);
 
 module.exports = router;
