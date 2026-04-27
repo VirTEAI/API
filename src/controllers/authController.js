@@ -2,7 +2,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const { PrismaClient } = require('@prisma/client');
-const { TransactionalEmailsApi, SendSmtpEmail, TransactionalEmailsApiApiKeys } = require('@getbrevo/brevo');
+const nodemailer = require('nodemailer');
 
 const prisma = new PrismaClient();
 
@@ -144,7 +144,7 @@ const forgotPassword = async (req, res) => {
     const user = await prisma.user.findUnique({ where: { email } });
 
     if (!user) {
-
+      
       return res.status(200).json({
         message: 'Se o email existir, um link de redefinição foi enviado'
       });
@@ -162,34 +162,40 @@ const forgotPassword = async (req, res) => {
       }
     });
 
-    const apiInstance = new TransactionalEmailsApi();
-    apiInstance.setApiKey(
-      TransactionalEmailsApiApiKeys.apiKey,
-      process.env.BREVO_API_KEY // não tem ainda
-    );
-
     const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`;
 
-    const sendSmtpEmail = new SendSmtpEmail();
-    sendSmtpEmail.subject = 'Redefinição de senha';
-    sendSmtpEmail.htmlContent = `
-      <p>Você solicitou a redefinição de senha.</p>
-      <p>Clique <a href="${resetUrl}">aqui</a> para redefinir sua senha.</p>
-      <p>Este link expira em 1 hora.</p>
-    `;
-    sendSmtpEmail.sender = {
-      name: 'Suporte VirTEAI',
-      email: process.env.MAIL_FROM
-    };
-    sendSmtpEmail.to = [{ email }];
+    const transporter = nodemailer.createTransport({
+      host: process.env.SMTP_HOST,
+      port: Number(process.env.SMTP_PORT),
+      secure: false,
+      auth: {
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS
+      }
+    });
 
-    await apiInstance.sendTransacEmail(sendSmtpEmail);
+    await transporter.sendMail({
+      from: `"Suporte VirTEAI" <${process.env.MAIL_FROM}>`,
+      to: email,
+      subject: 'Redefinição de senha',
+      html: `
+        <p>Você solicitou a redefinição de senha.</p>
+        <p>Clique <a href="${resetUrl}">aqui</a> para redefinir sua senha.</p>
+        <p>Este link expira em 1 hora.</p>
+      `
+    });
 
     return res.status(200).json({
       message: 'Se o email existir, um link de redefinição foi enviado'
     });
+
   } catch (error) {
-    return res.status(500).json({ error: 'Erro ao enviar link de redefinição' });
+
+    console.error('Erro em forgotPassword:', error);
+    
+    return res.status(500).json({
+      error: 'Erro ao enviar link de redefinição'
+    });
   }
 };
 
