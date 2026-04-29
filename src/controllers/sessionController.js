@@ -44,6 +44,7 @@ const getSessionId = async (req, res) => {
     return res.status(200).json({ valid: true });
   } catch (error) {
 
+    console.error('Erro ao verificar ID da sessão:', error);
     return res.status(500).json({ error: 'Erro ao verificar ID da sessão' });
   }
 };
@@ -150,6 +151,7 @@ const attachSessionData = async (req, res) => {
     });
   } catch (error) {
 
+    console.error('Erro ao anexar dados da sessão:', error);
     return res.status(500).json({ error: 'Erro ao anexar dados da sessão' });
   }
 };

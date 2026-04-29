@@ -22,6 +22,7 @@ const getUsers = async (req, res) => {
     return res.json(users);
   } catch (error) {
 
+    console.error('Erro ao buscar usuários:', error);
     return res.status(500).json({ error: 'Erro ao buscar usuários' });
   }
 };
@@ -66,6 +67,7 @@ const createUser = async (req, res) => {
     return res.status(201).json(user);
   } catch (error) {
 
+    console.error('Erro ao criar usuário:', error);
     return res.status(500).json({ error: 'Erro ao criar usuário' });
   }
 };
@@ -106,6 +108,7 @@ const getSessionData = async (req, res) => {
     return res.json(sessionData);
   } catch (error) {
 
+    console.error('Erro ao buscar dados de sessão:', error);
     return res.status(500).json({ error: 'Erro ao buscar dados de sessão:' + error.message });
   }
 };

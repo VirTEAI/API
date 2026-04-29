@@ -248,6 +248,7 @@ const resetPassword = async (req, res) => {
     return res.json({ message: 'Senha atualizada com sucesso' });
   } catch (error) {
 
+    console.error('Erro em resetPassword:', error);
     return res.status(500).json({ error: 'Erro ao redefinir a senha' });
   }
 };
