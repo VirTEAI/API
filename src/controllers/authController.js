@@ -35,6 +35,7 @@ const register = async (req, res) => {
     const name = String(req.body.name || '').trim();
     const email = normalizeEmail(req.body.email);
     const password = req.body.password;
+    const role = String(req.body.role).trim().toUpperCase();
 
     if (!name || name.length < 2) {
 
@@ -47,9 +48,15 @@ const register = async (req, res) => {
     }
 
     if (!isStrongPassword(password)) {
+      
       return res.status(400).json({
         error: 'Senha deve ter pelo menos 8 caracteres e incluir maiúsculas, minúsculas e um número'
       });
+    }
+
+    if (!['PATIENT', 'THERAPIST', 'ADMIN'].includes(role)) {
+
+      return res.status(400).json({ error: 'Perfil inválido' });
     }
 
     const existingUser = await prisma.user.findUnique({ where: { email } });
@@ -65,7 +72,8 @@ const register = async (req, res) => {
       data: {
         name,
         email,
-        password: hashedPassword
+        password: hashedPassword,
+        role
       }
     });
 
@@ -74,7 +82,8 @@ const register = async (req, res) => {
       user: {
         userId: user.userId,
         name: user.name,
-        email: user.email
+        email: user.email,
+        role: user.role
       }
     });
   } catch (error) {
@@ -111,7 +120,7 @@ const login = async (req, res) => {
     }
 
     const token = jwt.sign(
-      { userId: user.userId, email: user.email },
+      { userId: user.userId, email: user.email, role: user.role },
       JWT_SECRET,
       {
         expiresIn: JWT_EXPIRES_IN,

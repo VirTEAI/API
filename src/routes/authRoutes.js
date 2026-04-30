@@ -36,6 +36,10 @@ const router = express.Router();
  *                 type: string
  *                 format: password
  *                 example: StrongPass123
+ *               role:
+ *                type: string
+ *                enum: [PATIENT, THERAPIST, ADMIN]
+ *                example: PATIENT
  *     responses:
  *       201:
  *         description: Usuário criado

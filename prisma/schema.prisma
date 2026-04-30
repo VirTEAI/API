@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -10,23 +7,204 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  userId               Int      @id @default(autoincrement())
-  email            String   @unique
-  name             String?
-  password         String
-  resetToken       String?
-  resetTokenExpiry DateTime?
-  sessionIdHash    String?  @unique
-  sessionIdExpiry  DateTime?
-  sessions         SessionData[]
+enum UserRole {
+  PATIENT
+  THERAPIST
+  ADMIN
 }
 
-model SessionData {
-  sessionDataId        Int      @id @default(autoincrement())
-  userId               Int
-  data                 Json
-  createdAt            DateTime @default(now())
+enum AttendanceModality {
+  ONLINE
+  PRESENTIAL
+  BOTH
+}
 
-  user User @relation(fields: [userId], references: [userId])
+enum CareStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  PAUSED
+  FINISHED
+}
+
+enum ProgressStatus {
+  MAINTAINED
+  IMPROVED
+  REGRESSED
+}
+
+enum ScenarioStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  FINISHED
+}
+
+// enum NotificationStatus {
+  // UNREAD
+  // READ
+  // ARCHIVED
+// }
+
+// enum NotificationType {
+  // SYSTEM
+  // APPOINTMENT
+  // REMINDER
+  // REPORT
+  // OTHER
+// }
+
+model User {
+  userId           Int        @id @default(autoincrement())
+  email            String     @unique
+  name             String
+  password         String
+  role             UserRole   @default(PATIENT)
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+  resetToken       String?
+  resetTokenExpiry DateTime?
+  sessionIdHash    String?    @unique
+  sessionIdExpiry  DateTime?
+
+  patientProfile   PatientProfile?
+  therapistProfile TherapistProfile?
+  sessions         SessionData[]
+  // notifications    Notification[]
+}
+
+model PatientProfile {
+  patientProfileId Int           @id @default(autoincrement())
+  userId           Int           @unique
+  country          String
+  city             String
+  birthDate        DateTime
+  careStatus       CareStatus    @default(NOT_STARTED)
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  user             User                  @relation(fields: [userId], references: [userId])
+  therapeuticObjectives TherapeuticObjective[]
+  scenarios        Scenario[]
+  reports          Report[]
+  consultations    Consultation[] @relation("PatientConsultations")
+}
+
+model TherapistProfile {
+  therapistProfileId    Int                @id @default(autoincrement())
+  userId                Int                @unique
+  professionalRegister String
+  country              String
+  city                 String
+  birthDate            DateTime
+  position             String
+  specialty            String
+  experience           String
+  attendanceModality   AttendanceModality  @default(ONLINE)
+  createdAt            DateTime             @default(now())
+  updatedAt            DateTime             @updatedAt
+
+  user                  User                  @relation(fields: [userId], references: [userId])
+  therapeuticObjectives TherapeuticObjective[]
+  scenarios             Scenario[]
+  reports               Report[]
+  consultations         Consultation[] @relation("TherapistConsultations")
+}
+
+model TherapeuticObjective {
+  therapeuticObjectiveId Int             @id @default(autoincrement())
+  patientProfileId       Int
+  therapistProfileId     Int
+  title                  String
+  evolution              ProgressStatus   @default(MAINTAINED)
+  createdAt              DateTime         @default(now())
+  updatedAt              DateTime         @updatedAt
+
+  patient                PatientProfile   @relation(fields: [patientProfileId], references: [patientProfileId])
+  therapist              TherapistProfile @relation(fields: [therapistProfileId], references: [therapistProfileId])
+
+  @@index([patientProfileId])
+  @@index([therapistProfileId])
+}
+
+model Scenario {
+  scenarioId         Int             @id @default(autoincrement())
+  patientProfileId   Int
+  therapistProfileId Int
+  title              String
+  status             ScenarioStatus   @default(NOT_STARTED)
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+
+  patient            PatientProfile   @relation(fields: [patientProfileId], references: [patientProfileId])
+  therapist          TherapistProfile @relation(fields: [therapistProfileId], references: [therapistProfileId])
+
+  @@index([patientProfileId])
+  @@index([therapistProfileId])
+}
+
+model Consultation {
+  consultationId     Int              @id @default(autoincrement())
+  patientProfileId   Int
+  therapistProfileId Int
+  consultationDate   DateTime
+  objective          String
+  score              Int
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+
+  patient            PatientProfile    @relation("PatientConsultations", fields: [patientProfileId], references: [patientProfileId])
+  therapist          TherapistProfile  @relation("TherapistConsultations", fields: [therapistProfileId], references: [therapistProfileId])
+  report             Report?
+
+  @@index([patientProfileId])
+  @@index([therapistProfileId])
+  @@index([consultationDate])
+}
+
+model Report {
+  reportId           Int              @id @default(autoincrement())
+  patientProfileId   Int
+  therapistProfileId Int
+  consultationId     Int?             @unique
+  sessionObjective   String
+  title              String
+  evolution          ProgressStatus
+  content            String
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+
+  patient            PatientProfile   @relation(fields: [patientProfileId], references: [patientProfileId])
+  therapist          TherapistProfile @relation(fields: [therapistProfileId], references: [therapistProfileId])
+  consultation       Consultation?    @relation(fields: [consultationId], references: [consultationId])
+
+  @@index([patientProfileId])
+  @@index([therapistProfileId])
+}
+
+// model Notification {
+  // notificationId    Int                @id @default(autoincrement())
+  // userId            Int
+  // title             String
+  // message           String
+  // type              NotificationType   @default(SYSTEM)
+  // status            NotificationStatus @default(UNREAD)
+  // scheduledFor      DateTime?
+  // sentAt            DateTime?
+  // readAt            DateTime?
+  // createdAt         DateTime           @default(now())
+  // updatedAt         DateTime           @updatedAt
+
+  // user              User               @relation(fields: [userId], references: [userId])
+
+  // @@index([userId, status])
+// }
+
+model SessionData {
+  sessionDataId Int      @id @default(autoincrement())
+  userId        Int
+  data          Json
+  createdAt     DateTime @default(now())
+
+  user          User     @relation(fields: [userId], references: [userId])
+
+  @@index([userId])
 }

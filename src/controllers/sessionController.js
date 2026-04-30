@@ -53,15 +53,15 @@ const generateSessionId = async (req, res) => {
 
   try {
 
-    const email = String(req.body.email || '').trim().toLowerCase();
+    const userId = String(req.body.userId || '').trim().toLowerCase();
 
-    if (!email) {
+    if (!userId) {
 
-      return res.status(400).json({ error: 'Email é obrigatório' });
+      return res.status(400).json({ error: 'ID do usuário é obrigatório' });
     }
 
     const currentUser = await prisma.user.findUnique({
-      where: { email },
+      where: { userId },
       select: { userId: true, email: true }
     });
 
