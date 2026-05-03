@@ -111,59 +111,59 @@ model TherapistProfile {
 
 model TherapeuticObjective {
   therapeuticObjectiveId Int             @id @default(autoincrement())
-  patientProfileId       Int
-  therapistProfileId     Int
+  patientId       Int
+  therapistId     Int
   title                  String
   evolution              ProgressStatus   @default(MAINTAINED)
   createdAt              DateTime         @default(now())
   updatedAt              DateTime         @updatedAt
 
-  patient                PatientProfile   @relation(fields: [patientProfileId], references: [patientProfileId])
-  therapist              TherapistProfile @relation(fields: [therapistProfileId], references: [therapistProfileId])
+  patient                PatientProfile   @relation(fields: [patientId], references: [userId])
+  therapist              TherapistProfile @relation(fields: [therapistId], references: [userId])
 
-  @@index([patientProfileId])
-  @@index([therapistProfileId])
+  @@index([patientId])
+  @@index([therapistId])
 }
 
 model Scenario {
   scenarioId         Int             @id @default(autoincrement())
-  patientProfileId   Int
-  therapistProfileId Int
+  patientId   Int
+  therapistId Int
   title              String
   status             ScenarioStatus   @default(NOT_STARTED)
   createdAt          DateTime         @default(now())
   updatedAt          DateTime         @updatedAt
 
-  patient            PatientProfile   @relation(fields: [patientProfileId], references: [patientProfileId])
-  therapist          TherapistProfile @relation(fields: [therapistProfileId], references: [therapistProfileId])
+  patient            PatientProfile   @relation(fields: [patientId], references: [userId])
+  therapist          TherapistProfile @relation(fields: [therapistId], references: [userId])
 
-  @@index([patientProfileId])
-  @@index([therapistProfileId])
+  @@index([patientId])
+  @@index([therapistId])
 }
 
 model Consultation {
   consultationId     Int              @id @default(autoincrement())
-  patientProfileId   Int
-  therapistProfileId Int
+  patientId   Int
+  therapistId Int
   consultationDate   DateTime
   objective          String
   score              Int
   createdAt          DateTime         @default(now())
   updatedAt          DateTime         @updatedAt
 
-  patient            PatientProfile    @relation("PatientConsultations", fields: [patientProfileId], references: [patientProfileId])
-  therapist          TherapistProfile  @relation("TherapistConsultations", fields: [therapistProfileId], references: [therapistProfileId])
+  patient            PatientProfile    @relation("PatientConsultations", fields: [patientId], references: [userId])
+  therapist          TherapistProfile  @relation("TherapistConsultations", fields: [therapistId], references: [userId])
   report             Report?
 
-  @@index([patientProfileId])
-  @@index([therapistProfileId])
+  @@index([patientId])
+  @@index([therapistId])
   @@index([consultationDate])
 }
 
 model Report {
   reportId           Int              @id @default(autoincrement())
-  patientProfileId   Int
-  therapistProfileId Int
+  patientId   Int
+  therapistId Int
   consultationId     Int?             @unique
   sessionObjective   String
   title              String
@@ -172,12 +172,12 @@ model Report {
   createdAt          DateTime         @default(now())
   updatedAt          DateTime         @updatedAt
 
-  patient            PatientProfile   @relation(fields: [patientProfileId], references: [patientProfileId])
-  therapist          TherapistProfile @relation(fields: [therapistProfileId], references: [therapistProfileId])
+  patient            PatientProfile   @relation(fields: [patientId], references: [userId])
+  therapist          TherapistProfile @relation(fields: [therapistId], references: [userId])
   consultation       Consultation?    @relation(fields: [consultationId], references: [consultationId])
 
-  @@index([patientProfileId])
-  @@index([therapistProfileId])
+  @@index([patientId])
+  @@index([therapistId])
 }
 
 // model Notification {
