@@ -82,7 +82,7 @@ const createConsultation = async (req, res) => {
     const consultation = await prisma.consultation.create({
       data: {
         patientId,
-        therapistId: role === 'ADMIN' ? Number(req.body.therapistId) : therapistProfile.therapistId,
+        therapistId: role === 'ADMIN' ? Number(req.body.therapistId) : userId,
         consultationDate,
         objective,
         score
@@ -142,7 +142,7 @@ const listConsultations = async (req, res) => {
         return res.status(404).json({ error: 'Perfil de paciente não encontrado' });
       }
 
-      where = { patientId: patientProfile.patientId };
+      where = { patientId: patientProfile.patientProfileId };
     } else if (role === 'THERAPIST') {
 
       const therapistProfile = await getTherapistProfileFromUserId(userId);
@@ -152,7 +152,7 @@ const listConsultations = async (req, res) => {
         return res.status(404).json({ error: 'Perfil de terapeuta não encontrado' });
       }
 
-      where = { therapistId: therapistProfile.therapistId };
+      where = { therapistId: therapistProfile.therapistProfileId };
     }
 
     const consultations = await prisma.consultation.findMany({
@@ -275,7 +275,7 @@ const updateConsultation = async (req, res) => {
 
       const therapistProfile = await getTherapistProfileFromUserId(userId);
 
-      if (!therapistProfile || therapistProfile.therapistId !== existing.therapistId) {
+      if (!therapistProfile || therapistProfile.therapistProfileId !== existing.therapistId) {
 
         return res.status(403).json({ error: 'Você não pode alterar esta consulta' });
       }
@@ -386,7 +386,7 @@ const deleteConsultation = async (req, res) => {
 
       const therapistProfile = await getTherapistProfileFromUserId(userId);
 
-      if (!therapistProfile || therapistProfile.therapistId !== existing.therapistId) {
+      if (!therapistProfile || therapistProfile.therapistProfileId !== existing.therapistId) {
 
         return res.status(403).json({ error: 'Você não pode excluir esta consulta' });
       }

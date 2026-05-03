@@ -105,7 +105,13 @@ const login = async (req, res) => {
       return res.status(400).json({ error: 'Email e senha são obrigatórios' });
     }
 
-    const user = await prisma.user.findUnique({ where: { email } });
+    const user = await prisma.user.findUnique({
+      where: { email },
+      include: {
+        patientProfile: true,
+        therapistProfile: true
+      }
+    });
 
     if (!user) {
 

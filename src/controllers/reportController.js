@@ -98,7 +98,7 @@ const createReport = async (req, res) => {
         });
       }
 
-      if (role === 'THERAPIST' && therapistProfile && consultation.therapistId !== therapistProfile.therapistId) {
+      if (role === 'THERAPIST' && therapistProfile && consultation.therapistId !== therapistProfile.therapistProfileId) {
 
         return res.status(403).json({
           error: 'Você não pode criar relatório para esta consulta'
@@ -109,7 +109,7 @@ const createReport = async (req, res) => {
     const report = await prisma.report.create({
       data: {
         patientId,
-        therapistId: role === 'ADMIN' ? Number(req.body.therapistId) : therapistProfile.therapistId,
+        therapistId: role === 'ADMIN' ? Number(req.body.therapistId) : userId,
         consultationId: consultationId || null,
         sessionObjective,
         title,
@@ -171,7 +171,7 @@ const listReports = async (req, res) => {
         return res.status(404).json({ error: 'Perfil de paciente não encontrado' });
       }
 
-      where = { patientId: patientProfile.patientId };
+      where = { patientId: patientProfile.patientProfileId };
     }
 
     if (role === 'THERAPIST') {
@@ -183,7 +183,7 @@ const listReports = async (req, res) => {
         return res.status(404).json({ error: 'Perfil de terapeuta não encontrado' });
       }
 
-      where = { therapistId: therapistProfile.therapistId };
+      where = { therapistId: therapistProfile.therapistProfileId };
     }
 
     const reports = await prisma.report.findMany({
@@ -303,7 +303,7 @@ const updateReport = async (req, res) => {
 
       const therapistProfile = await getTherapistProfileFromUserId(userId);
 
-      if (!therapistProfile || therapistProfile.therapistId !== existing.therapistId) {
+      if (!therapistProfile || therapistProfile.therapistProfileId !== existing.therapistId) {
 
         return res.status(403).json({ error: 'Você não pode alterar este relatório' });
       }
@@ -430,7 +430,7 @@ const deleteReport = async (req, res) => {
         
       const therapistProfile = await getTherapistProfileFromUserId(userId);
 
-      if (!therapistProfile || therapistProfile.therapistId !== existing.therapistId) {
+      if (!therapistProfile || therapistProfile.therapistProfileId !== existing.therapistId) {
 
         return res.status(403).json({ error: 'Você não pode excluir este relatório' });
       }
