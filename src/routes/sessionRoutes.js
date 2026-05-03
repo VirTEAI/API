@@ -63,8 +63,6 @@ router.get('/:sessionId', role(['THERAPIST', 'ADMIN']), validateLimiter, getSess
  *     tags: [Sessions]
  *     summary: Gerar ID de sessão
  *     description: Gera um token de sessão temporário (uso único) (apenas para terapeutas e admins)
- *     security:
- *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: Token gerado com sucesso

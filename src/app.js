@@ -76,8 +76,14 @@ app.get('/health', async (req, res) => {
 // }
 
 // Routes
-app.use('/sessions', require('./routes/sessionRoutes'));
 app.use('/auth', require('./routes/authRoutes'));
+app.use('/consultations', require('./routes/consultationRoutes'));
+app.use('/objectives', require('./routes/objectiveRoutes'));
+app.use('/patients', require('./routes/patientRoutes'));
+app.use('/reports', require('./routes/reportRoutes'));
+app.use('/scenarios', require('./routes/scenarioRoutes'));
+app.use('/sessions', require('./routes/sessionRoutes'));
+app.use('/therapists', require('./routes/therapistRoutes'));
 
 app.use((req, res) => {
 
