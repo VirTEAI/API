@@ -34,7 +34,6 @@ const createPatientProfile = async (req, res) => {
     }
 
     const existingProfile = await prisma.patientProfile.findUnique({
-
       where: { userId }
     });
 
@@ -202,10 +201,9 @@ const updatePatientProfileCareStatus = async (req, res) => {
 
     try {
 
-        const userId = req.user?.userId;
+        const userId = req.body.userId;
         const role = req.user?.role;
 
-        // if i
         if (role !== 'THERAPIST' && role !== 'ADMIN') {
 
             return res.status(403).json({ error: 'Apenas terapeutas e administradores podem atualizar o status de acompanhamento' });
