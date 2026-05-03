@@ -13,8 +13,6 @@ const parseDate = (value) => {
 const createPatientProfile = async (req, res) => {
 
   try {
-
-const userId = Number(req.body.userId);
     
     if (role !== 'PATIENT') {
       
@@ -68,6 +66,12 @@ const getMyPatientProfile = async (req, res) => {
   try {
 
     const userId = req.user?.userId;
+    const role = req.user?.role;
+
+    if (role !== 'PATIENT') {
+
+      return res.status(403).json({ error: 'Apenas pacientes podem acessar seu perfil de paciente' });
+    }
 
     const profile = await prisma.patientProfile.findUnique({
       where: { userId },
@@ -124,6 +128,12 @@ const getPatientProfileById = async (req, res) => {
   try {
 
     const userId = Number(req.params.userId);
+    const role = req.user?.role;
+
+    if (role === 'THERAPIST' || role === 'ADMIN') {
+
+      return res.status(403).json({ error: 'Apenas terapeutas e administradores podem acessar perfis de pacientes por ID' });
+    }
 
     if (!Number.isInteger(userId) || userId <= 0) {
 
@@ -161,6 +171,12 @@ const updatePatientProfileCareStatus = async (req, res) => {
     try {
 
         const userId = req.user?.userId;
+        const role = req.user?.role;
+
+        if (role !== 'THERAPIST' && role !== 'ADMIN') {
+
+            return res.status(403).json({ error: 'Apenas terapeutas e administradores podem atualizar o status de acompanhamento' });
+        }
 
         const existing = await prisma.patientProfile.findUnique({
             where: { userId }
@@ -199,6 +215,12 @@ const updatePatientProfile = async (req, res) => {
   try {
 
     const userId = req.user?.userId;
+    const role = req.user?.role;
+
+    if (role !== 'PATIENT') {
+
+      return res.status(403).json({ error: 'Apenas pacientes podem atualizar seu perfil de paciente' });
+    }
 
     const existing = await prisma.patientProfile.findUnique({
       where: { userId }

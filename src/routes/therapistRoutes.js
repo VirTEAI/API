@@ -3,6 +3,8 @@ const express = require('express');
 const {
   createTherapistProfile,
   getMyTherapistProfile,
+  getAllTherapistProfiles,
+  getTherapistProfileById,
   updateTherapistProfile
 } = require('../controllers/therapistController');
 
@@ -79,7 +81,7 @@ router.post('/create', createTherapistProfile);
  * /therapists/me:
  *   get:
  *     tags: [Therapists]
- *     summary: Obter meu perfil de terapeuta
+ *     summary: Obter meu perfil de terapeuta (apenas para terapeutas)
  *     description: Retorna o perfil clínico do terapeuta autenticado
  *     responses:
  *       200:
@@ -97,10 +99,46 @@ router.get('/me', auth, role('THERAPIST'), getMyTherapistProfile);
 
 /**
  * @openapi
+ * /therapists/list:
+ *   get:
+ *     tags: [Therapists]
+ *     summary: Listar todos os perfis de terapeutas
+ *     description: Retorna uma lista de todos os perfis de terapeutas
+ *     responses:
+ *       200:
+ *         description: Perfis encontrados
+ *       401:
+ *         description: Não autenticado
+ *       500:
+ *         description: Erro do servidor
+ */
+router.get('/list', auth, getAllTherapistProfiles);
+
+/**
+ * @openapi
+ * /therapists/{therapistId}:
+ *   get:
+ *     tags: [Therapists]
+ *     summary: Buscar perfil de terapeuta por ID
+ *     description: Retorna o perfil clínico de um terapeuta específico
+ *     responses:
+ *       200:
+ *         description: Perfil encontrado
+ *       401:
+ *         description: Não autenticado
+ *       404:
+ *         description: Perfil não encontrado
+ *       500:
+ *         description: Erro do servidor
+ */
+router.get('/:therapistId', auth, getTherapistProfileById);
+
+/**
+ * @openapi
  * /therapists/update:
  *   put:
  *     tags: [Therapists]
- *     summary: Atualizar meu perfil de terapeuta
+ *     summary: Atualizar meu perfil de terapeuta (apenas para terapeutas)
  *     description: Atualiza o perfil clínico do terapeuta autenticado
  *     requestBody:
  *       required: false

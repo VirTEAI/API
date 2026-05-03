@@ -87,6 +87,12 @@ const getMyTherapistProfile = async (req, res) => {
   try {
 
     const userId = req.user.userId;
+    const role = req.user.role;
+
+    if (role !== 'THERAPIST') {
+
+      return res.status(403).json({ error: 'Apenas terapeutas podem acessar este endpoint' });
+    }
 
     const profile = await prisma.therapistProfile.findUnique({
       where: { userId },

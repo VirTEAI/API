@@ -3,6 +3,9 @@ const express = require('express');
 const {
   createPatientProfile,
   getMyPatientProfile,
+  getAllPatientProfiles,
+  getPatientProfileById,
+  updatePatientProfileCareStatus,
   updatePatientProfile
 } = require('../controllers/patientController');
 
@@ -43,9 +46,6 @@ const router = express.Router();
  *                 type: string
  *                 format: date
  *                 example: 2000-01-15
- *               careStatus:
- *                 type: string
- *                 example: NOT_STARTED
  *     responses:
  *       201:
  *         description: Perfil criado com sucesso
@@ -67,7 +67,7 @@ router.post('/create', createPatientProfile);
  * /patients/me:
  *   get:
  *     tags: [Patients]
- *     summary: Obter meu perfil de paciente
+ *     summary: Obter meu perfil de paciente (apenas para pacientes)
  *     description: Retorna o perfil clínico do paciente autenticado
  *     responses:
  *       200:
@@ -82,6 +82,88 @@ router.post('/create', createPatientProfile);
  *         description: Erro do servidor
  */
 router.get('/me', auth, role('PATIENT'), getMyPatientProfile);
+
+/**
+ * @openapi
+ * /patients/list:
+ *   get:
+ *     tags: [Patients]
+ *     summary: Listar todos os perfis de pacientes
+ *     description: Retorna uma lista de todos os perfis de pacientes
+ *     responses:
+ *       200:
+ *         description: Perfis encontrados
+ *       401:
+ *         description: Não autenticado
+ *       500:
+ *         description: Erro do servidor
+ */
+router.get('/list', auth, getAllPatientProfiles);
+
+/**
+ * @openapi
+ * /patients/{patientId}:
+ *   get:
+ *     tags: [Patients]
+ *     summary: Buscar perfil de paciente por ID (apenas para terapeutas e administradores)
+ *     description: Retorna o perfil clínico de um paciente específico
+ *     parameters:
+ *       - in: path
+ *         name: patientId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         example: 1
+ *     responses:
+ *       200:
+ *         description: Perfil encontrado
+ *       400:
+ *         description: ID inválido
+ *       401:
+ *         description: Não autenticado
+ *       403:
+ *         description: Acesso negado
+ *       404:
+ *         description: Perfil não encontrado
+ *       500:
+ *         description: Erro do servidor
+ */
+router.get('/:patientId', auth, role('THERAPIST', 'ADMIN'), getPatientProfileById);
+
+/**
+ * @openapi
+ * /patients/care-status:
+ *   patch:
+ *     tags: [Patients]
+ *     summary: Atualizar status de acompanhamento do paciente (apenas terapeutas e administradores)
+ *     description: Permite que terapeutas ou administradores atualizem o status de acompanhamento de um paciente
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [careStatus]
+ *             properties:
+ *               careStatus:
+ *                 type: string
+ *                 enum: [NOT_STARTED, IN_PROGRESS, PAUSED, FINISHED]
+ *                 example: IN_PROGRESS
+ *     responses:
+ *       200:
+ *         description: Status atualizado com sucesso
+ *       400:
+ *         description: Status inválido
+ *       401:
+ *         description: Não autenticado
+ *       403:
+ *         description: Acesso negado
+ *       404:
+ *         description: Perfil não encontrado
+ *       500:
+ *         description: Erro do servidor
+ */
+router.patch('/care-status', auth, role('THERAPIST', 'ADMIN'), updatePatientProfileCareStatus);
 
 /**
  * @openapi
