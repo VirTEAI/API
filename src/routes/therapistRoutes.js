@@ -72,7 +72,7 @@ const router = express.Router();
  *       500:
  *         description: Erro do servidor
  */
-router.post('/create', auth, role('THERAPIST'), createTherapistProfile);
+router.post('/create', createTherapistProfile);
 
 /**
  * @openapi

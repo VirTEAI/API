@@ -13,18 +13,14 @@ const createTherapistProfile = async (req, res) => {
 
   try {
 
-    const userId = req.user?.userId;
-    const role = req.user?.role;
-
-    if (!userId) {
-
-      return res.status(401).json({ error: 'Não autenticado' });
-    }
+    const role = req.body.role;
 
     if (role !== 'THERAPIST') {
         
       return res.status(403).json({ error: 'Apenas terapeutas podem criar perfil' });
     }
+
+    const userId = Number(req.body.userId);
 
     const {
       professionalRegister,

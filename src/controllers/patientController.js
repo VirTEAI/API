@@ -14,19 +14,14 @@ const createPatientProfile = async (req, res) => {
 
   try {
 
-    const userId = req.user?.userId;
-    const role = req.user?.role;
-
-    if (!userId) {
-
-      return res.status(401).json({ error: 'Não autenticado' });
-    }
-
+const userId = Number(req.body.userId);
+    
     if (role !== 'PATIENT') {
-
+      
       return res.status(403).json({ error: 'Apenas pacientes podem criar perfil de paciente' });
     }
-
+    
+    const userId = Number(req.body.userId);
     const country = normalizeString(req.body.country);
     const city = normalizeString(req.body.city);
     const birthDate = parseDate(req.body.birthDate);
