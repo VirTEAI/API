@@ -13,6 +13,8 @@ const parseDate = (value) => {
 const createPatientProfile = async (req, res) => {
 
   try {
+
+    const role = req.body.role;
     
     if (role !== 'PATIENT') {
       
