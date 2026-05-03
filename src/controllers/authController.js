@@ -112,6 +112,11 @@ const login = async (req, res) => {
       return res.status(401).json({ error: 'Email ou senha inválidos' });
     }
 
+    if (!user.patientProfile && !user.therapistProfile) {
+
+      return res.status(403).json({ error: 'Perfil de paciente ou terapeuta não encontrado para este usuário' });
+    }
+
     const passwordMatches = await bcrypt.compare(password, user.password);
 
     if (!passwordMatches) {

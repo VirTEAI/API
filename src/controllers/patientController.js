@@ -152,7 +152,7 @@ const getPatientProfileById = async (req, res) => {
     const userId = Number(req.params.userId);
     const role = req.user?.role;
 
-    if (role === 'THERAPIST' || role === 'ADMIN') {
+    if (role !== 'THERAPIST' && role !== 'ADMIN') {
 
       return res.status(403).json({ error: 'Apenas terapeutas e administradores podem acessar perfis de pacientes por ID' });
     }
@@ -205,6 +205,7 @@ const updatePatientProfileCareStatus = async (req, res) => {
         const userId = req.user?.userId;
         const role = req.user?.role;
 
+        // if i
         if (role !== 'THERAPIST' && role !== 'ADMIN') {
 
             return res.status(403).json({ error: 'Apenas terapeutas e administradores podem atualizar o status de acompanhamento' });
