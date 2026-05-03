@@ -164,15 +164,15 @@ const getTherapistProfileById = async (req, res) => {
 
   try {
 
-    const therapistId = Number(req.params.therapistId);
+    const userId = Number(req.params.userId);
 
-    if (!Number.isInteger(therapistId) || therapistId <= 0) {
+    if (!Number.isInteger(userId) || userId <= 0) {
 
       return res.status(400).json({ error: 'ID do terapeuta inválido' });
     }
 
     const profile = await prisma.therapistProfile.findUnique({
-      where: { userId: therapistId },
+      where: { userId: userId },
       include: {
         user: {
           select: {
