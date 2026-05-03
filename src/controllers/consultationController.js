@@ -1,5 +1,4 @@
 const { PrismaClient } = require('@prisma/client');
-const { use } = require('react');
 
 const prisma = new PrismaClient();
 
