@@ -102,14 +102,14 @@ router.get('/list', auth, getAllPatientProfiles);
 
 /**
  * @openapi
- * /patients/{patientId}:
+ * /patients/{userId}:
  *   get:
  *     tags: [Patients]
  *     summary: Buscar perfil de paciente por ID (apenas para terapeutas e administradores)
  *     description: Retorna o perfil clínico de um paciente específico
  *     parameters:
  *       - in: path
- *         name: patientId
+ *         name: userId
  *         required: true
  *         schema:
  *           type: integer
@@ -128,7 +128,7 @@ router.get('/list', auth, getAllPatientProfiles);
  *       500:
  *         description: Erro do servidor
  */
-router.get('/:patientId', auth, role('THERAPIST', 'ADMIN'), getPatientProfileById);
+router.get('/:userId', auth, role('THERAPIST', 'ADMIN'), getPatientProfileById);
 
 /**
  * @openapi

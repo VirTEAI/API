@@ -116,7 +116,7 @@ router.get('/list', auth, getAllTherapistProfiles);
 
 /**
  * @openapi
- * /therapists/{therapistId}:
+ * /therapists/{userId}:
  *   get:
  *     tags: [Therapists]
  *     summary: Buscar perfil de terapeuta por ID
@@ -131,7 +131,7 @@ router.get('/list', auth, getAllTherapistProfiles);
  *       500:
  *         description: Erro do servidor
  */
-router.get('/:therapistId', auth, getTherapistProfileById);
+router.get('/:userId', auth, getTherapistProfileById);
 
 /**
  * @openapi
