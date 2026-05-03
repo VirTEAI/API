@@ -26,11 +26,11 @@ const createObjective = async (req, res) => {
     const userId = req.user?.userId;
     const role = req.user?.role;
 
-    const patientProfileId = Number(req.body.patientProfileId);
+    const patientId = Number(req.body.patientId);
     const title = normalizeString(req.body.title);
     const evolution = normalizeString(req.body.evolution) || 'MAINTAINED';
 
-    if (!isValidId(patientProfileId)) {
+    if (!isValidId(patientId)) {
 
       return res.status(400).json({ error: 'ID do perfil do paciente inválido' });
     }
@@ -50,7 +50,7 @@ const createObjective = async (req, res) => {
     }
 
     const patientProfile = await prisma.patientProfile.findUnique({
-      where: { patientProfileId }
+      where: { userId:patientId }
     });
 
     if (!patientProfile) {
@@ -58,7 +58,7 @@ const createObjective = async (req, res) => {
       return res.status(404).json({ error: 'Paciente não encontrado' });
     }
 
-    let therapistProfileId = null;
+    let therapistId = null;
 
     if (role === 'THERAPIST') {
 
@@ -68,12 +68,12 @@ const createObjective = async (req, res) => {
 
         return res.status(404).json({ error: 'Perfil de terapeuta não encontrado' });
       }
-      therapistProfileId = therapistProfile.therapistProfileId;
+      therapistId = therapistProfile.therapistId;
     } else {
 
-      therapistProfileId = Number(req.body.therapistProfileId);
+      therapistId = Number(req.body.therapistId);
 
-      if (!isValidId(therapistProfileId)) {
+      if (!isValidId(therapistId)) {
 
         return res.status(400).json({ error: 'ID do perfil do terapeuta inválido' });
       }
@@ -81,8 +81,8 @@ const createObjective = async (req, res) => {
 
     const objective = await prisma.therapeuticObjective.create({
       data: {
-        patientProfileId,
-        therapistProfileId,
+        patientId,
+        therapistId,
         title,
         evolution
       }
@@ -117,7 +117,7 @@ const listObjectives = async (req, res) => {
         return res.status(404).json({ error: 'Perfil de paciente não encontrado' });
       }
 
-      where = { patientProfileId: patientProfile.patientProfileId };
+      where = { patientId: patientProfile.patientId };
     }
 
     if (role === 'THERAPIST') {
@@ -129,7 +129,7 @@ const listObjectives = async (req, res) => {
         return res.status(404).json({ error: 'Perfil de terapeuta não encontrado' });
       }
 
-      where = { therapistProfileId: therapistProfile.therapistProfileId };
+      where = { therapistId: therapistProfile.therapistId };
     }
 
     const objectives = await prisma.therapeuticObjective.findMany({
@@ -247,7 +247,7 @@ const updateObjective = async (req, res) => {
 
       const therapistProfile = await getTherapistProfileFromUserId(userId);
 
-      if (!therapistProfile || therapistProfile.therapistProfileId !== existing.therapistProfileId) {
+      if (!therapistProfile || therapistProfile.therapistId !== existing.therapistId) {
 
         return res.status(403).json({ error: 'Você não pode alterar este objetivo' });
       }
@@ -325,7 +325,7 @@ const deleteObjective = async (req, res) => {
 
       const therapistProfile = await getTherapistProfileFromUserId(userId);
 
-      if (!therapistProfile || therapistProfile.therapistProfileId !== existing.therapistProfileId) {
+      if (!therapistProfile || therapistProfile.therapistId !== existing.therapistId) {
 
         return res.status(403).json({ error: 'Você não pode excluir este objetivo' });
       }

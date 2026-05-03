@@ -25,7 +25,7 @@ const router = express.Router();
  * /consultations/create:
  *   post:
  *     tags: [Consultations]
- *     summary: Criar consulta
+ *     summary: Criar consulta (apenas terapeutas e administradores)
  *     description: Cria uma nova consulta vinculada a um paciente e terapeuta
  *     requestBody:
  *       required: true
@@ -33,12 +33,12 @@ const router = express.Router();
  *         application/json:
  *           schema:
  *             type: object
- *             required: [patientProfileId, consultationDate, objective, score]
+ *             required: [patientId, consultationDate, objective, score]
  *             properties:
- *               patientProfileId:
+ *               patientId:
  *                 type: integer
  *                 example: 1
- *               therapistProfileId:
+ *               therapistId:
  *                 type: integer
  *                 example: 2
  *               consultationDate:
@@ -135,7 +135,7 @@ router.get('/:consultationId', auth, role('PATIENT', 'THERAPIST', 'ADMIN'), getC
  *           schema:
  *             type: object
  *             properties:
- *               patientProfileId:
+ *               patientId:
  *                 type: integer
  *                 example: 1
  *               consultationDate:

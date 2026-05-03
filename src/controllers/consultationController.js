@@ -1,4 +1,5 @@
 const { PrismaClient } = require('@prisma/client');
+const { use } = require('react');
 
 const prisma = new PrismaClient();
 
@@ -33,12 +34,12 @@ const createConsultation = async (req, res) => {
     const userId = req.user?.userId;
     const role = req.user?.role;
 
-    const patientProfileId = Number(req.body.patientProfileId);
+    const patientId = Number(req.body.patientId);
     const consultationDate = parseDate(req.body.consultationDate);
     const objective = normalizeString(req.body.objective);
     const score = Number(req.body.score);
 
-    if (!isValidId(patientProfileId)) {
+    if (!isValidId(patientId)) {
 
       return res.status(400).json({ error: 'ID do paciente inválido' });
     }
@@ -59,7 +60,7 @@ const createConsultation = async (req, res) => {
     }
 
     const patientProfile = await prisma.patientProfile.findUnique({
-      where: { patientProfileId }
+      where: { userId: patientId }
     });
 
     if (!patientProfile) {
@@ -81,8 +82,8 @@ const createConsultation = async (req, res) => {
 
     const consultation = await prisma.consultation.create({
       data: {
-        patientProfileId,
-        therapistProfileId: role === 'ADMIN' ? Number(req.body.therapistProfileId) : therapistProfile.therapistProfileId,
+        patientId,
+        therapistId: role === 'ADMIN' ? Number(req.body.therapistId) : therapistProfile.therapistId,
         consultationDate,
         objective,
         score
@@ -142,7 +143,7 @@ const listConsultations = async (req, res) => {
         return res.status(404).json({ error: 'Perfil de paciente não encontrado' });
       }
 
-      where = { patientProfileId: patientProfile.patientProfileId };
+      where = { patientId: patientProfile.patientId };
     } else if (role === 'THERAPIST') {
 
       const therapistProfile = await getTherapistProfileFromUserId(userId);
@@ -152,7 +153,7 @@ const listConsultations = async (req, res) => {
         return res.status(404).json({ error: 'Perfil de terapeuta não encontrado' });
       }
 
-      where = { therapistProfileId: therapistProfile.therapistProfileId };
+      where = { therapistId: therapistProfile.therapistId };
     }
 
     const consultations = await prisma.consultation.findMany({
@@ -275,7 +276,7 @@ const updateConsultation = async (req, res) => {
 
       const therapistProfile = await getTherapistProfileFromUserId(userId);
 
-      if (!therapistProfile || therapistProfile.therapistProfileId !== existing.therapistProfileId) {
+      if (!therapistProfile || therapistProfile.therapistId !== existing.therapistId) {
 
         return res.status(403).json({ error: 'Você não pode alterar esta consulta' });
       }
@@ -283,17 +284,17 @@ const updateConsultation = async (req, res) => {
 
     const data = {};
 
-    if (!req.body.patientProfileId) {
+    if (!req.body.patientId) {
 
-      const patientProfileId = Number(req.body.patientProfileId);
+      const patientId = Number(req.body.patientId);
 
-      if (!isValidId(patientProfileId)) {
+      if (!isValidId(patientId)) {
 
         return res.status(400).json({ error: 'ID do perfil do paciente inválido' });
       }
 
       const patientProfile = await prisma.patientProfile.findUnique({
-        where: { patientProfileId }
+        where: { userId: patientId }
       });
 
       if (!patientProfile) {
@@ -301,7 +302,7 @@ const updateConsultation = async (req, res) => {
         return res.status(404).json({ error: 'Paciente não encontrado' });
       }
 
-      data.patientProfileId = patientProfileId;
+      data.patientId = patientId;
     }
 
     if (!req.body.consultationDate) {
@@ -386,7 +387,7 @@ const deleteConsultation = async (req, res) => {
 
       const therapistProfile = await getTherapistProfileFromUserId(userId);
 
-      if (!therapistProfile || therapistProfile.therapistProfileId !== existing.therapistProfileId) {
+      if (!therapistProfile || therapistProfile.therapistId !== existing.therapistId) {
 
         return res.status(403).json({ error: 'Você não pode excluir esta consulta' });
       }

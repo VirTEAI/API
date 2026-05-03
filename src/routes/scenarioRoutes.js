@@ -33,12 +33,12 @@ const router = express.Router();
  *         application/json:
  *           schema:
  *             type: object
- *             required: [patientProfileId, title]
+ *             required: [patientId, title]
  *             properties:
- *               patientProfileId:
+ *               patientId:
  *                 type: integer
  *                 example: 1
- *               therapistProfileId:
+ *               therapistId:
  *                 type: integer
  *                 example: 2
  *               title:

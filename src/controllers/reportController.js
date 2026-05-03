@@ -26,14 +26,14 @@ const createReport = async (req, res) => {
     const userId = req.user?.userId;
     const role = req.user?.role;
 
-    const patientProfileId = Number(req.body.patientProfileId);
+    const patientId = Number(req.body.patientId);
     const sessionObjective = normalizeString(req.body.sessionObjective);
     const title = normalizeString(req.body.title);
     const evolution = normalizeString(req.body.evolution);
     const content = normalizeString(req.body.content);
     const consultationId = req.body.consultationId !== undefined ? Number(req.body.consultationId) : null;
 
-    if (!isValidId(patientProfileId)) {
+    if (!isValidId(patientId)) {
 
       return res.status(400).json({ error: 'Perfil do paciente inválido' });
     }
@@ -55,7 +55,7 @@ const createReport = async (req, res) => {
     }
 
     const patientProfile = await prisma.patientProfile.findUnique({
-      where: { patientProfileId }
+      where: { userId: patientId }
     });
 
     if (!patientProfile) {
@@ -91,14 +91,14 @@ const createReport = async (req, res) => {
         return res.status(404).json({ error: 'Consulta não encontrada' });
       }
 
-      if (consultation.patientProfileId !== patientProfileId) {
+      if (consultation.patientId !== patientId) {
 
         return res.status(400).json({
           error: 'A consulta não pertence a este paciente'
         });
       }
 
-      if (role === 'THERAPIST' && therapistProfile && consultation.therapistProfileId !== therapistProfile.therapistProfileId) {
+      if (role === 'THERAPIST' && therapistProfile && consultation.therapistId !== therapistProfile.therapistId) {
 
         return res.status(403).json({
           error: 'Você não pode criar relatório para esta consulta'
@@ -108,8 +108,8 @@ const createReport = async (req, res) => {
 
     const report = await prisma.report.create({
       data: {
-        patientProfileId,
-        therapistProfileId: role === 'ADMIN' ? Number(req.body.therapistProfileId) : therapistProfile.therapistProfileId,
+        patientId,
+        therapistId: role === 'ADMIN' ? Number(req.body.therapistId) : therapistProfile.therapistId,
         consultationId: consultationId || null,
         sessionObjective,
         title,
@@ -171,7 +171,7 @@ const listReports = async (req, res) => {
         return res.status(404).json({ error: 'Perfil de paciente não encontrado' });
       }
 
-      where = { patientProfileId: patientProfile.patientProfileId };
+      where = { patientId: patientProfile.patientId };
     }
 
     if (role === 'THERAPIST') {
@@ -183,7 +183,7 @@ const listReports = async (req, res) => {
         return res.status(404).json({ error: 'Perfil de terapeuta não encontrado' });
       }
 
-      where = { therapistProfileId: therapistProfile.therapistProfileId };
+      where = { therapistId: therapistProfile.therapistId };
     }
 
     const reports = await prisma.report.findMany({
@@ -303,7 +303,7 @@ const updateReport = async (req, res) => {
 
       const therapistProfile = await getTherapistProfileFromUserId(userId);
 
-      if (!therapistProfile || therapistProfile.therapistProfileId !== existing.therapistProfileId) {
+      if (!therapistProfile || therapistProfile.therapistId !== existing.therapistId) {
 
         return res.status(403).json({ error: 'Você não pode alterar este relatório' });
       }
@@ -380,7 +380,7 @@ const updateReport = async (req, res) => {
         return res.status(404).json({ error: 'Consulta não encontrada' });
       }
 
-      if (consultation.patientProfileId !== existing.patientProfileId) {
+      if (consultation.patientId !== existing.patientId) {
 
         return res.status(400).json({ error: 'A consulta não pertence a este relatório' });
       }
@@ -430,7 +430,7 @@ const deleteReport = async (req, res) => {
         
       const therapistProfile = await getTherapistProfileFromUserId(userId);
 
-      if (!therapistProfile || therapistProfile.therapistProfileId !== existing.therapistProfileId) {
+      if (!therapistProfile || therapistProfile.therapistId !== existing.therapistId) {
 
         return res.status(403).json({ error: 'Você não pode excluir este relatório' });
       }
