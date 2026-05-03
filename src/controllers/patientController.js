@@ -78,7 +78,16 @@ const getMyPatientProfile = async (req, res) => {
     const profile = await prisma.patientProfile.findUnique({
       where: { userId },
       include: {
-        user: true,
+        user: {
+          select: {
+            userId: true,
+            email: true,
+            name: true,
+            role: true,
+            createdAt: true,
+            updatedAt: true
+          }
+        },
         therapeuticObjectives: true,
         scenarios: true,
         _count: {
@@ -108,7 +117,16 @@ const getAllPatientProfiles = async (req, res) => {
 
     const profiles = await prisma.patientProfile.findMany({
       include: {
-        user: true,
+        user: {
+          select: {
+            userId: true,
+            email: true,
+            name: true,
+            role: true,
+            createdAt: true,
+            updatedAt: true
+          }
+        },
         therapeuticObjectives: true,
         scenarios: true,
         _count: {
@@ -147,7 +165,17 @@ const getPatientProfileById = async (req, res) => {
     const profile = await prisma.patientProfile.findUnique({
       where: { userId },
       include: {
-        user: true,        therapeuticObjectives: true,
+        user: {
+          select: {
+            userId: true,
+            email: true,
+            name: true,
+            role: true,
+            createdAt: true,
+            updatedAt: true
+          }
+        },
+        therapeuticObjectives: true,
         scenarios: true,
         _count: {
           select: {
