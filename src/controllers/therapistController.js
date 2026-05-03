@@ -97,6 +97,7 @@ const getMyTherapistProfile = async (req, res) => {
     const profile = await prisma.therapistProfile.findUnique({
       where: { userId },
       include: {
+        user: true,
         _count: {
           select: {
             consultations: true
@@ -124,6 +125,7 @@ const getAllTherapistProfiles = async (req, res) => {
 
     const profiles = await prisma.therapistProfile.findMany({
       include: {
+        user: true,
         _count: {
           select: {
             consultations: true
@@ -154,6 +156,7 @@ const getTherapistProfileById = async (req, res) => {
     const profile = await prisma.therapistProfile.findUnique({
       where: { userId: therapistId },
       include: {
+        user: true,
         _count: {
           select: {
             consultations: true
