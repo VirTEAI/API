@@ -4,6 +4,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const { swaggerUi, swaggerSpec } = require('../swagger.js');
+console.log('swaggerUi:', swaggerUi);
 
 const app = express();
 
@@ -81,6 +82,7 @@ app.use('/patients', require('./routes/patientRoutes'));
 app.use('/reports', require('./routes/reportRoutes'));
 app.use('/scenarios', require('./routes/scenarioRoutes'));
 app.use('/sessions', require('./routes/sessionRoutes'));
+app.use('/tests', require('./routes/testRoutes'));
 app.use('/therapists', require('./routes/therapistRoutes'));
 
 app.use((req, res) => {

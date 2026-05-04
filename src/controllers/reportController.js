@@ -1,5 +1,5 @@
 const { PrismaClient } = require('@prisma/client');
-const { getTherapistProfileFromUserId, getPatientProfileFromUserId } = require('../services/getProfiles');
+const { getTherapistProfileFromUserId, getPatientProfileFromUserId } = require('../services/getProfilesService');
 const { normalizeString, isValidId } = require('../utils/validation');
 
 const prisma = new PrismaClient();

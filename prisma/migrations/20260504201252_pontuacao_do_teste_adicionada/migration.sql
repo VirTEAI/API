@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE `PatientProfile` ADD COLUMN `testScore` INTEGER NOT NULL DEFAULT 0;

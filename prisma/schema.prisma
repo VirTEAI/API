@@ -79,6 +79,8 @@ model PatientProfile {
   city             String
   birthDate        DateTime
   careStatus       CareStatus    @default(NOT_STARTED)
+  test10Score      Int           @default(0)
+  test50Score      Int           @default(0)
   createdAt        DateTime      @default(now())
   updatedAt        DateTime      @updatedAt
 
