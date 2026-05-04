@@ -283,7 +283,7 @@ const updateConsultation = async (req, res) => {
 
     const data = {};
 
-    if (!req.body.patientId) {
+    if (req.body.patientId) {
 
       const patientId = Number(req.body.patientId);
 
@@ -304,7 +304,7 @@ const updateConsultation = async (req, res) => {
       data.patientId = patientId;
     }
 
-    if (!req.body.consultationDate) {
+    if (req.body.consultationDate) {
 
       const consultationDate = parseDate(req.body.consultationDate);
 
@@ -315,7 +315,7 @@ const updateConsultation = async (req, res) => {
       data.consultationDate = consultationDate;
     }
 
-    if (!req.body.objective) {
+    if (req.body.objective) {
 
       const objective = normalizeString(req.body.objective);
 
@@ -327,7 +327,7 @@ const updateConsultation = async (req, res) => {
       data.objective = objective;
     }
 
-    if (!req.body.score) {
+    if (req.body.score) {
 
       const score = Number(req.body.score);
 

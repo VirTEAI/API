@@ -41,9 +41,6 @@ const router = express.Router();
  *               therapistId:
  *                 type: integer
  *                 example: 2
- *               consultationId:
- *                 type: integer
- *                 example: 5
  *               sessionObjective:
  *                 type: string
  *                 example: Trabalhar interação social
@@ -66,7 +63,7 @@ const router = express.Router();
  *       403:
  *         description: Acesso negado
  *       404:
- *         description: Paciente, terapeuta ou consulta não encontrada
+ *         description: Paciente, terapeuta não encontrada
  *       500:
  *         description: Erro do servidor
  */
@@ -152,9 +149,6 @@ router.get('/:reportId', auth, role('PATIENT', 'THERAPIST', 'ADMIN'), getReportB
  *               content:
  *                 type: string
  *                 example: O paciente manteve o padrão...
- *               consultationId:
- *                 type: integer
- *                 example: 5
  *     responses:
  *       200:
  *         description: Relatório atualizado com sucesso

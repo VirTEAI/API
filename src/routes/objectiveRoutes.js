@@ -44,9 +44,6 @@ const router = express.Router();
  *               title:
  *                 type: string
  *                 example: Interação social
- *               evolution:
- *                 type: string
- *                 example: MAINTAINED
  *     responses:
  *       201:
  *         description: Objetivo criado com sucesso
@@ -134,9 +131,6 @@ router.get('/:objectiveId', auth, role('PATIENT', 'THERAPIST', 'ADMIN'), getObje
  *               title:
  *                 type: string
  *                 example: Interação social
- *               evolution:
- *                 type: string
- *                 example: IMPROVED
  *     responses:
  *       200:
  *         description: Objetivo atualizado com sucesso

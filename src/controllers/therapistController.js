@@ -160,6 +160,39 @@ const getAllTherapistProfiles = async (req, res) => {
   }
 };
 
+const getTherapistPatients = async (req, res) => {
+
+  try {
+
+    const userId = req.user.userId;
+    const role = req.user.role;
+
+    if (role !== 'THERAPIST') {
+
+      return res.status(403).json({ error: 'Apenas terapeutas podem acessar este endpoint' });
+    }
+
+    const therapistProfile = await prisma.therapistProfile.findUnique({
+      where: { userId }
+    });
+
+    if (!therapistProfile) {
+
+      return res.status(404).json({ error: 'Perfil de terapeuta não encontrado' });
+    }
+
+    const patients = await prisma.patientProfile.findMany({
+      where: { therapistId: userId }
+    });
+
+    return res.json(patients);
+  } catch (error) {
+
+    console.error('Error in getTherapistPatients:', error);
+    return res.status(500).json({ error: 'Erro ao buscar pacientes' });
+  }
+};
+
 const getTherapistProfileById = async (req, res) => {
 
   try {
@@ -269,10 +302,67 @@ const updateTherapistProfile = async (req, res) => {
   }
 };
 
+const takePatient = async (req, res) => {
+
+  try {
+
+    const userId = req.user.userId;
+    const role = req.user.role;
+
+    if (role !== 'THERAPIST') {
+
+      return res.status(403).json({ error: 'Apenas terapeutas podem pegar pacientes' });
+    }
+
+    const therapistProfile = await prisma.therapistProfile.findUnique({
+      where: { userId }
+    });
+
+    if (!therapistProfile) {
+
+      return res.status(404).json({ error: 'Perfil de terapeuta não encontrado' });
+    }
+
+    const patientId = Number(req.params.patientId);
+
+    if (!Number.isInteger(patientId) || patientId <= 0) {
+
+      return res.status(400).json({ error: 'ID do paciente inválido' });
+    }
+
+    const patientProfile = await prisma.patientProfile.findUnique({
+      where: { userId: patientId }
+    });
+
+    if (!patientProfile) {
+
+      return res.status(404).json({ error: 'Perfil de paciente não encontrado' });
+    }
+
+    if (patientProfile.therapistId) {
+
+      return res.status(409).json({ error: 'Paciente já está associado a um terapeuta' });
+    }
+
+    await prisma.patientProfile.update({
+      where: { userId: patientId },
+      data: { therapistId }
+    });
+
+    return res.json({ message: 'Paciente associado ao terapeuta com sucesso' });
+  } catch (error) {
+
+    console.error('Error in takePatient:', error);
+    return res.status(500).json({ error: 'Erro ao associar paciente' });
+  }
+};
+
 module.exports = {
   createTherapistProfile,
   getMyTherapistProfile,
   getAllTherapistProfiles,
+  getTherapistPatients,
   getTherapistProfileById,
-  updateTherapistProfile
+  updateTherapistProfile,
+  takePatient
 };

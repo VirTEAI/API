@@ -4,8 +4,10 @@ const {
   createTherapistProfile,
   getMyTherapistProfile,
   getAllTherapistProfiles,
+  getTherapistPatients,
   getTherapistProfileById,
-  updateTherapistProfile
+  updateTherapistProfile,
+  takePatient
 } = require('../controllers/therapistController');
 
 const auth = require('../middlewares/authMiddleware');
@@ -116,6 +118,25 @@ router.get('/list', auth, getAllTherapistProfiles);
 
 /**
  * @openapi
+ * /therapists/patients:
+ *   get:
+ *     tags: [Therapists]
+ *     summary: Listar pacientes associados ao meu perfil de terapeuta (apenas para terapeutas)
+ *     description: Retorna uma lista de pacientes associados ao perfil clínico do terapeuta autenticado
+ *     responses:
+ *       200:
+ *         description: Pacientes encontrados
+ *       401:
+ *         description: Não autenticado
+ *       403:
+ *         description: Acesso negado
+ *       500:
+ *         description: Erro do servidor
+ */
+router.get('/patients', auth, role('THERAPIST'), getTherapistPatients);
+
+/**
+ * @openapi
  * /therapists/{userId}:
  *   get:
  *     tags: [Therapists]
@@ -187,5 +208,30 @@ router.get('/:userId', auth, getTherapistProfileById);
  *         description: Erro do servidor
  */
 router.put('/update', auth, role('THERAPIST'), updateTherapistProfile);
+
+/**
+ * @openapi
+ * /therapists/take-patient/{patientId}:
+ *   patch:
+ *     tags: [Therapists]
+ *     summary: Assumir acompanhamento de um paciente (apenas para terapeutas)
+ *     description: Permite que um terapeuta assuma o acompanhamento de um paciente, associando o paciente ao perfil do terapeuta
+ *     responses:
+ *       200:
+ *         description: Paciente associado ao terapeuta com sucesso
+ *       400:
+ *         description: ID do paciente inválido
+ *       401:
+ *         description: Não autenticado
+ *       403:
+ *         description: Acesso negado
+ *       404:
+ *         description: Perfil de terapeuta ou paciente não encontrado
+ *       409:
+ *         description: Paciente já está associado a um terapeuta
+ *       500:
+ *         description: Erro do servidor
+*/
+router.patch('/take-patient/:patientId', auth, role('THERAPIST'), takePatient);
 
 module.exports = router;

@@ -50,7 +50,7 @@ const createScenario = async (req, res) => {
     }
 
     const patientProfile = await prisma.patientProfile.findUnique({
-      where: { patientId }
+      where: { userId: patientId }
     });
 
     if (!patientProfile) {
@@ -261,7 +261,7 @@ const updateScenario = async (req, res) => {
 
     const data = {};
 
-    if (!req.body.title) {
+    if (req.body.title) {
 
       const title = normalizeString(req.body.title);
 
@@ -273,7 +273,7 @@ const updateScenario = async (req, res) => {
       data.title = title;
     }
 
-    if (!req.body.status) {
+    if (req.body.status) {
 
       const status = normalizeString(req.body.status);
       const allowed = ['NOT_STARTED', 'IN_PROGRESS', 'FINISHED'];

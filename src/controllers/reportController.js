@@ -311,7 +311,7 @@ const updateReport = async (req, res) => {
 
     const data = {};
 
-    if (!req.body.sessionObjective) {
+    if (req.body.sessionObjective) {
 
       const sessionObjective = normalizeString(req.body.sessionObjective);
 
@@ -323,7 +323,7 @@ const updateReport = async (req, res) => {
       data.sessionObjective = sessionObjective;
     }
 
-    if (!req.body.title) {
+    if (req.body.title) {
 
       const title = normalizeString(req.body.title);
 
@@ -335,7 +335,7 @@ const updateReport = async (req, res) => {
       data.title = title;
     }
 
-    if (!req.body.evolution) {
+    if (req.body.evolution) {
 
       const evolution = normalizeString(req.body.evolution);
       const allowed = ['MAINTAINED', 'IMPROVED', 'REGRESSED'];
@@ -350,7 +350,7 @@ const updateReport = async (req, res) => {
       data.evolution = evolution;
     }
 
-    if (!req.body.content) {
+    if (req.body.content) {
 
       const content = normalizeString(req.body.content);
 
@@ -362,7 +362,7 @@ const updateReport = async (req, res) => {
       data.content = content;
     }
 
-    if (!req.body.consultationId) {
+    if (req.body.consultationId) {
 
       const consultationId = Number(req.body.consultationId);
 

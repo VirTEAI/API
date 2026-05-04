@@ -28,7 +28,6 @@ const createObjective = async (req, res) => {
 
     const patientId = Number(req.body.patientId);
     const title = normalizeString(req.body.title);
-    const evolution = normalizeString(req.body.evolution) || 'MAINTAINED';
 
     if (!isValidId(patientId)) {
 
@@ -40,17 +39,8 @@ const createObjective = async (req, res) => {
       return res.status(400).json({ error: 'Título é obrigatório' });
     }
 
-    const allowedEvolutions = ['MAINTAINED', 'IMPROVED', 'REGRESSED'];
-
-    if (!allowedEvolutions.includes(evolution)) {
-
-      return res.status(400).json({
-        error: 'Evolução inválida. Use MAINTAINED, IMPROVED ou REGRESSED'
-      });
-    }
-
     const patientProfile = await prisma.patientProfile.findUnique({
-      where: { userId:patientId }
+      where: { userId: patientId }
     });
 
     if (!patientProfile) {
@@ -83,8 +73,7 @@ const createObjective = async (req, res) => {
       data: {
         patientId,
         therapistId,
-        title,
-        evolution
+        title
       }
     });
 
@@ -255,7 +244,7 @@ const updateObjective = async (req, res) => {
 
     const data = {};
 
-    if (!req.body.title) {
+    if (req.body.title) {
 
       const title = normalizeString(req.body.title);
 
@@ -263,23 +252,8 @@ const updateObjective = async (req, res) => {
 
         return res.status(400).json({ error: 'Título não pode ser vazio' });
       }
+
       data.title = title;
-    }
-
-    if (!req.body.evolution) {
-
-      const evolution = normalizeString(req.body.evolution);
-      const allowed = ['MAINTAINED', 'IMPROVED', 'REGRESSED'];
-
-      if (!allowed.includes(evolution)) {
-
-        return res.status(400).json({
-
-          error: 'Evolução inválida. Use MAINTAINED, IMPROVED ou REGRESSED'
-        });
-      }
-
-      data.evolution = evolution;
     }
 
     const updated = await prisma.therapeuticObjective.update({

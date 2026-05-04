@@ -87,6 +87,7 @@ const getMyPatientProfile = async (req, res) => {
             updatedAt: true
           }
         },
+        therapist: true,
         therapeuticObjectives: true,
         scenarios: true,
         _count: {
@@ -126,6 +127,7 @@ const getAllPatientProfiles = async (req, res) => {
             updatedAt: true
           }
         },
+        therapist: true,
         therapeuticObjectives: true,
         scenarios: true,
         _count: {
@@ -174,6 +176,7 @@ const getPatientProfileById = async (req, res) => {
             updatedAt: true
           }
         },
+        therapist: true,
         therapeuticObjectives: true,
         scenarios: true,
         _count: {
