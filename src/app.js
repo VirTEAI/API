@@ -7,8 +7,6 @@ const { swaggerUi, swaggerSpec } = require('../swagger.js');
 
 const app = express();
 
-// Depois transformar em utils as funções de validação e normalização redundantes dos controllers
-
 // const prisma = new PrismaClient({
 //   log: process.env.NODE_ENV === 'development'
 //     ? ['query', 'info', 'warn', 'error']

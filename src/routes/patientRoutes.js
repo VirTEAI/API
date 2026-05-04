@@ -1,7 +1,7 @@
 const express = require('express');
 
 const {
-  createPatientProfile,
+  // createPatientProfile,
   getMyPatientProfile,
   getAllPatientProfiles,
   getPatientProfileById,
@@ -14,53 +14,53 @@ const role = require('../middlewares/roleMiddleware');
 
 const router = express.Router();
 
-/**
- * @openapi
- * tags:
- *   name: Patients
- *   description: Gerenciamento de perfis de pacientes
- */
+// /**
+//  * @openapi
+//  * tags:
+//  *   name: Patients
+//  *   description: Gerenciamento de perfis de pacientes
+//  */
 
-/**
- * @openapi
- * /patients/create:
- *   post:
- *     tags: [Patients]
- *     summary: Criar perfil de paciente
- *     description: Cria o perfil clínico do paciente autenticado
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required: [country, city, birthDate]
- *             properties:
- *               country:
- *                 type: string
- *                 example: Brasil
- *               city:
- *                 type: string
- *                 example: São Paulo
- *               birthDate:
- *                 type: string
- *                 format: date
- *                 example: 2000-01-15
- *     responses:
- *       201:
- *         description: Perfil criado com sucesso
- *       400:
- *         description: Dados inválidos
- *       401:
- *         description: Não autenticado
- *       403:
- *         description: Acesso negado
- *       409:
- *         description: Perfil já existe
- *       500:
- *         description: Erro do servidor
- */
-router.post('/create', createPatientProfile);
+// /**
+//  * @openapi
+//  * /patients/create:
+//  *   post:
+//  *     tags: [Patients]
+//  *     summary: Criar perfil de paciente
+//  *     description: Cria o perfil clínico do paciente autenticado
+//  *     requestBody:
+//  *       required: true
+//  *       content:
+//  *         application/json:
+//  *           schema:
+//  *             type: object
+//  *             required: [country, city, birthDate]
+//  *             properties:
+//  *               country:
+//  *                 type: string
+//  *                 example: Brasil
+//  *               city:
+//  *                 type: string
+//  *                 example: São Paulo
+//  *               birthDate:
+//  *                 type: string
+//  *                 format: date
+//  *                 example: 2000-01-15
+//  *     responses:
+//  *       201:
+//  *         description: Perfil criado com sucesso
+//  *       400:
+//  *         description: Dados inválidos
+//  *       401:
+//  *         description: Não autenticado
+//  *       403:
+//  *         description: Acesso negado
+//  *       409:
+//  *         description: Perfil já existe
+//  *       500:
+//  *         description: Erro do servidor
+//  */
+// router.post('/create', createPatientProfile);
 
 /**
  * @openapi

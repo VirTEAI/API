@@ -1,86 +1,80 @@
 const { PrismaClient } = require('@prisma/client');
+const { parseDate, normalizeString } = require('../utils/validation');
 
 const prisma = new PrismaClient();
 
-const normalizeString = (value) => String(value || '').trim();
+// const createTherapistProfile = async (req, res) => {
 
-const parseDate = (value) => {
-  const date = new Date(value);
-  return Number.isNaN(date.getTime()) ? null : date;
-};
+//   try {
 
-const createTherapistProfile = async (req, res) => {
+//     const role = req.body.role;
 
-  try {
-
-    const role = req.body.role;
-
-    if (role !== 'THERAPIST') {
+//     if (role !== 'THERAPIST') {
         
-      return res.status(403).json({ error: 'Apenas terapeutas podem criar perfil' });
-    }
+//       return res.status(403).json({ error: 'Apenas terapeutas podem criar perfil' });
+//     }
 
-    const userId = Number(req.body.userId);
+//     const userId = Number(req.body.userId);
 
-    const {
-      professionalRegister,
-      country,
-      city,
-      birthDate,
-      position,
-      specialty,
-      experience,
-      attendanceModality
-    } = req.body;
+//     const {
+//       professionalRegister,
+//       country,
+//       city,
+//       birthDate,
+//       position,
+//       specialty,
+//       experience,
+//       attendanceModality
+//     } = req.body;
 
-    if (
-      !professionalRegister ||
-      !country ||
-      !city ||
-      !birthDate ||
-      !position ||
-      !specialty ||
-      !experience
-    ) {
+//     if (
+//       !professionalRegister ||
+//       !country ||
+//       !city ||
+//       !birthDate ||
+//       !position ||
+//       !specialty ||
+//       !experience
+//     ) {
 
-      return res.status(400).json({
-        error: 'Campos obrigatórios não preenchidos'
-      });
-    }
+//       return res.status(400).json({
+//         error: 'Campos obrigatórios não preenchidos'
+//       });
+//     }
 
-    const existing = await prisma.therapistProfile.findUnique({
-      where: { userId }
-    });
+//     const existing = await prisma.therapistProfile.findUnique({
+//       where: { userId }
+//     });
 
-    if (existing) {
+//     if (existing) {
         
-      return res.status(409).json({ error: 'Perfil de terapeuta já existe' });
-    }
+//       return res.status(409).json({ error: 'Perfil de terapeuta já existe' });
+//     }
 
-    const profile = await prisma.therapistProfile.create({
-      data: {
-        userId,
-        professionalRegister,
-        country,
-        city,
-        birthDate: parseDate(birthDate),
-        position,
-        specialty,
-        experience,
-        attendanceModality: attendanceModality || 'ONLINE'
-      }
-    });
+//     const profile = await prisma.therapistProfile.create({
+//       data: {
+//         userId,
+//         professionalRegister,
+//         country,
+//         city,
+//         birthDate: parseDate(birthDate),
+//         position,
+//         specialty,
+//         experience,
+//         attendanceModality: attendanceModality || 'ONLINE'
+//       }
+//     });
 
-    return res.status(201).json({
-      message: 'Perfil de terapeuta criado com sucesso',
-      therapistProfile: profile
-    });
-  } catch (error) {
+//     return res.status(201).json({
+//       message: 'Perfil de terapeuta criado com sucesso',
+//       therapistProfile: profile
+//     });
+//   } catch (error) {
 
-    console.error('Error in createTherapistProfile:', error);
-    return res.status(500).json({ error: 'Erro ao criar perfil de terapeuta' });
-  }
-};
+//     console.error('Error in createTherapistProfile:', error);
+//     return res.status(500).json({ error: 'Erro ao criar perfil de terapeuta' });
+//   }
+// };
 
 const getMyTherapistProfile = async (req, res) => {
     
@@ -182,7 +176,7 @@ const getTherapistPatients = async (req, res) => {
     }
 
     const patients = await prisma.patientProfile.findMany({
-      where: { therapistId: userId }
+      where: { therapistId: therapistProfile.userId }
     });
 
     return res.json(patients);
@@ -346,7 +340,7 @@ const takePatient = async (req, res) => {
 
     await prisma.patientProfile.update({
       where: { userId: patientId },
-      data: { therapistId }
+      data: { therapistId: userId }
     });
 
     return res.json({ message: 'Paciente associado ao terapeuta com sucesso' });
@@ -358,7 +352,7 @@ const takePatient = async (req, res) => {
 };
 
 module.exports = {
-  createTherapistProfile,
+  // createTherapistProfile,
   getMyTherapistProfile,
   getAllTherapistProfiles,
   getTherapistPatients,

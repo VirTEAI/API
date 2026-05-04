@@ -1,7 +1,7 @@
 const express = require('express');
 
 const {
-  createTherapistProfile,
+  // createTherapistProfile,
   getMyTherapistProfile,
   getAllTherapistProfiles,
   getTherapistPatients,
@@ -22,61 +22,61 @@ const router = express.Router();
  *   description: Gerenciamento de perfis de terapeutas
  */
 
-/**
- * @openapi
- * /therapists/create:
- *   post:
- *     tags: [Therapists]
- *     summary: Criar perfil de terapeuta
- *     description: Cria o perfil clínico do terapeuta autenticado
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             required: [professionalRegister, country, city, birthDate, position, specialty, experience]
- *             properties:
- *               professionalRegister:
- *                 type: string
- *                 example: CRP 00/00000
- *               country:
- *                 type: string
- *                 example: Brasil
- *               city:
- *                 type: string
- *                 example: São Paulo
- *               birthDate:
- *                 type: string
- *                 format: date
- *                 example: 1990-05-20
- *               position:
- *                 type: string
- *                 example: Terapeuta
- *               specialty:
- *                 type: string
- *                 example: Terapia Cognitivo-Comportamental
- *               experience:
- *                 type: string
- *                 example: 5 anos de experiência
- *               attendanceModality:
- *                 type: string
- *                 example: BOTH
- *     responses:
- *       201:
- *         description: Perfil criado com sucesso
- *       400:
- *         description: Dados inválidos
- *       401:
- *         description: Não autenticado
- *       403:
- *         description: Acesso negado
- *       409:
- *         description: Perfil já existe
- *       500:
- *         description: Erro do servidor
- */
-router.post('/create', createTherapistProfile);
+// /**
+//  * @openapi
+//  * /therapists/create:
+//  *   post:
+//  *     tags: [Therapists]
+//  *     summary: Criar perfil de terapeuta
+//  *     description: Cria o perfil clínico do terapeuta autenticado
+//  *     requestBody:
+//  *       required: true
+//  *       content:
+//  *         application/json:
+//  *           schema:
+//  *             type: object
+//  *             required: [professionalRegister, country, city, birthDate, position, specialty, experience]
+//  *             properties:
+//  *               professionalRegister:
+//  *                 type: string
+//  *                 example: CRP 00/00000
+//  *               country:
+//  *                 type: string
+//  *                 example: Brasil
+//  *               city:
+//  *                 type: string
+//  *                 example: São Paulo
+//  *               birthDate:
+//  *                 type: string
+//  *                 format: date
+//  *                 example: 1990-05-20
+//  *               position:
+//  *                 type: string
+//  *                 example: Terapeuta
+//  *               specialty:
+//  *                 type: string
+//  *                 example: Terapia Cognitivo-Comportamental
+//  *               experience:
+//  *                 type: string
+//  *                 example: 5 anos de experiência
+//  *               attendanceModality:
+//  *                 type: string
+//  *                 example: BOTH
+//  *     responses:
+//  *       201:
+//  *         description: Perfil criado com sucesso
+//  *       400:
+//  *         description: Dados inválidos
+//  *       401:
+//  *         description: Não autenticado
+//  *       403:
+//  *         description: Acesso negado
+//  *       409:
+//  *         description: Perfil já existe
+//  *       500:
+//  *         description: Erro do servidor
+//  */
+// router.post('/create', createTherapistProfile);
 
 /**
  * @openapi

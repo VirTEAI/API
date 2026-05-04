@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const { PrismaClient } = require('@prisma/client');
 const nodemailer = require('nodemailer');
+const { normalizeString, parseDate } = require('../utils/validation');
 
 const prisma = new PrismaClient();
 
@@ -35,8 +36,19 @@ const register = async (req, res) => {
     const name = String(req.body.name || '').trim();
     const email = normalizeEmail(req.body.email);
     const password = req.body.password;
+    const country = normalizeString(req.body.country);
+    const city = normalizeString(req.body.city);
+    const birthDate = parseDate(req.body.birthDate);
     const role = String(req.body.role).trim().toUpperCase();
 
+    let {
+        professionalRegister,
+        position,
+        specialty,
+        experience,
+        attendanceModality
+      } = req.body;
+    
     if (!name || name.length < 2) {
 
       return res.status(400).json({ error: 'Nome deve ter pelo menos 2 caracteres' });
@@ -65,6 +77,28 @@ const register = async (req, res) => {
 
       return res.status(409).json({ error: 'Email já está em uso' });
     }
+    
+    if (!country || !city || !birthDate) {
+      
+      return res.status(400).json({
+        error: 'país, cidade e data de nascimento são obrigatórios'
+      });
+    }
+
+    if (role === 'THERAPIST') {
+
+      if (
+        !professionalRegister ||
+        !position ||
+        !specialty ||
+        !experience
+      ) {
+
+        return res.status(400).json({
+          error: 'Campos obrigatórios não preenchidos'
+        });
+      }
+    }
 
     const hashedPassword = await bcrypt.hash(password, 12);
 
@@ -77,19 +111,88 @@ const register = async (req, res) => {
       }
     });
 
-    return res.status(201).json({
-      message: 'User created',
-      user: {
-        userId: user.userId,
-        name: user.name,
-        email: user.email,
-        role: user.role
-      }
-    });
+    const userId = Number(user.userId);
+
+    if (role === 'PATIENT') {
+
+      // const existingProfile = await prisma.patientProfile.findUnique({
+      //   where: { userId }
+      // });
+
+      // if (existingProfile) {
+
+      //   return res.status(409).json({ error: 'Perfil de paciente já existe' });
+      // }
+
+      const patientProfile = await prisma.patientProfile.create({
+        data: {
+          userId,
+          country,
+          city,
+          birthDate
+        }
+      });
+
+      return res.status(201).json({
+        message: 'Perfil de paciente criado com sucesso',
+        patientProfile
+      });
+    } else if (role === 'THERAPIST') {
+
+      // const existing = await prisma.therapistProfile.findUnique({
+      //   where: { userId }
+      // });
+
+      // if (existing) {
+          
+      //   return res.status(409).json({ error: 'Perfil de terapeuta já existe' });
+      // }
+
+      const profile = await prisma.therapistProfile.create({
+        data: {
+          userId,
+          professionalRegister,
+          country,
+          city,
+          birthDate: parseDate(birthDate),
+          position,
+          specialty,
+          experience,
+          attendanceModality: attendanceModality || 'ONLINE'
+        }
+      });
+
+      return res.status(201).json({
+        message: 'Perfil de terapeuta criado com sucesso',
+        therapistProfile: profile
+      });
+    }
+
+    // return res.status(201).json({
+    //   message: 'User created',
+    //   user: {
+    //     userId: user.userId,
+    //     name: user.name,
+    //     email: user.email,
+    //     role: user.role
+    //   }
+    // });
   } catch (error) {
 
     console.error('Error in register:', error);
     return res.status(500).json({ error: 'Erro ao criar usuário' });
+  }
+};
+
+const createTherapistProfile = async (req, res) => {
+
+  try {
+
+    
+  } catch (error) {
+
+    console.error('Error in createTherapistProfile:', error);
+    return res.status(500).json({ error: 'Erro ao criar perfil de terapeuta' });
   }
 };
 

@@ -15,20 +15,61 @@ const router = express.Router();
  *   description: Endpoints de autenticação e gerenciamento de usuários
  */
 
+// /**
+//  * @openapi
+//  * /auth/register:
+//  *   post:
+//  *     tags: [Auth]
+//  *     summary: Registrar usuário
+//  *     description: Cria um novo usuário com senha forte criptografada
+//  *     requestBody:
+//  *       required: true
+//  *       content:
+//  *         application/json:
+//  *           schema:
+//  *             type: object
+//  *             required: [name, email, password]
+//  *             properties:
+//  *               name:
+//  *                 type: string
+//  *                 example: John Doe
+//  *               email:
+//  *                 type: string
+//  *                 format: email
+//  *                 example: john@email.com
+//  *               password:
+//  *                 type: string
+//  *                 format: password
+//  *                 example: StrongPass123
+//  *               role:
+//  *                type: string
+//  *                enum: [PATIENT, THERAPIST, ADMIN]
+//  *                example: PATIENT
+//  *     responses:
+//  *       201:
+//  *         description: Usuário criado
+//  *       400:
+//  *         description: Dados inválidos
+//  *       409:
+//  *         description: Email já em uso
+//  *       500:
+//  *         description: Erro do servidor
+//  */
+
 /**
  * @openapi
  * /auth/register:
  *   post:
  *     tags: [Auth]
  *     summary: Registrar usuário
- *     description: Cria um novo usuário com senha forte criptografada
+ *     description: Cria um novo usuário com senha forte criptografada e perfil associado
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
  *             type: object
- *             required: [name, email, password]
+ *             required: [name, email, password, role, country, city, birthDate]
  *             properties:
  *               name:
  *                 type: string
@@ -42,12 +83,38 @@ const router = express.Router();
  *                 format: password
  *                 example: StrongPass123
  *               role:
- *                type: string
- *                enum: [PATIENT, THERAPIST, ADMIN]
- *                example: PATIENT
+ *                 type: string
+ *                 enum: [PATIENT, THERAPIST, ADMIN]
+ *                 example: PATIENT
+ *               country:
+ *                 type: string
+ *                 example: Brazil
+ *               city:
+ *                 type: string
+ *                 example: São Paulo
+ *               birthDate:
+ *                 type: string
+ *                 format: date
+ *                 example: 1990-01-01
+ *               professionalRegister (para terapeutas):
+ *                 type: string
+ *                 example: CRP 12345
+ *               position (para terapeutas):
+ *                 type: string
+ *                 example: Psicólogo Clínico
+ *               specialty (para terapeutas):
+ *                 type: string
+ *                 example: Terapia Cognitivo-Comportamental
+ *               experience (para terapeutas):
+ *                 type: string
+ *                 example: 10 anos de experiência em clínica privada
+ *               attendanceModality (para terapeutas):
+ *                 type: string
+ *                 enum: [ONLINE, PRESENCIAL, BOTH]
+ *                 example: ONLINE
  *     responses:
  *       201:
- *         description: Usuário criado
+ *         description: Usuário criado com perfil associado
  *       400:
  *         description: Dados inválidos
  *       409:

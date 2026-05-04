@@ -1,30 +1,8 @@
 const { PrismaClient } = require('@prisma/client');
+const { getTherapistProfileFromUserId, getPatientProfileFromUserId } = require('../services/getProfiles');
+const { normalizeString, parseDate, isValidId } = require('../utils/validation');
 
 const prisma = new PrismaClient();
-
-const isValidId = (value) => Number.isInteger(value) && value > 0;
-
-const parseDate = (value) => {
-
-  const date = new Date(value);
-  return Number.isNaN(date.getTime()) ? null : date;
-};
-
-const normalizeString = (value) => String(value || '').trim();
-
-const getTherapistProfileFromUserId = async (userId) => {
-
-  return prisma.therapistProfile.findUnique({
-    where: { userId }
-  });
-};
-
-const getPatientProfileFromUserId = async (userId) => {
-
-  return prisma.patientProfile.findUnique({
-    where: { userId }
-  });
-};
 
 const createConsultation = async (req, res) => {
 

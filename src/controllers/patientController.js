@@ -1,66 +1,59 @@
 const { PrismaClient } = require('@prisma/client');
+const { normalizeString, parseDate } = require('../utils/validation');
 
 const prisma = new PrismaClient();
 
-const normalizeString = (value) => String(value || '').trim();
+// const createPatientProfile = async (req, res) => {
 
-const parseDate = (value) => {
+//   try {
 
-  const date = new Date(value);
-  return Number.isNaN(date.getTime()) ? null : date;
-};
-
-const createPatientProfile = async (req, res) => {
-
-  try {
-
-    const role = req.body.role;
+//     const role = req.body.role;
     
-    if (role !== 'PATIENT') {
+//     if (role !== 'PATIENT') {
       
-      return res.status(403).json({ error: 'Apenas pacientes podem criar perfil de paciente' });
-    }
+//       return res.status(403).json({ error: 'Apenas pacientes podem criar perfil de paciente' });
+//     }
     
-    const userId = Number(req.body.userId);
-    const country = normalizeString(req.body.country);
-    const city = normalizeString(req.body.city);
-    const birthDate = parseDate(req.body.birthDate);
+//     const userId = Number(req.body.userId);
+//     const country = normalizeString(req.body.country);
+//     const city = normalizeString(req.body.city);
+//     const birthDate = parseDate(req.body.birthDate);
 
-    if (!country || !city || !birthDate) {
+//     if (!country || !city || !birthDate) {
 
-      return res.status(400).json({
-        error: 'país, cidade e data de nascimento são obrigatórios'
-      });
-    }
+//       return res.status(400).json({
+//         error: 'país, cidade e data de nascimento são obrigatórios'
+//       });
+//     }
 
-    const existingProfile = await prisma.patientProfile.findUnique({
-      where: { userId }
-    });
+//     const existingProfile = await prisma.patientProfile.findUnique({
+//       where: { userId }
+//     });
 
-    if (existingProfile) {
+//     if (existingProfile) {
 
-      return res.status(409).json({ error: 'Perfil de paciente já existe' });
-    }
+//       return res.status(409).json({ error: 'Perfil de paciente já existe' });
+//     }
 
-    const patientProfile = await prisma.patientProfile.create({
-      data: {
-        userId,
-        country,
-        city,
-        birthDate
-      }
-    });
+//     const patientProfile = await prisma.patientProfile.create({
+//       data: {
+//         userId,
+//         country,
+//         city,
+//         birthDate
+//       }
+//     });
 
-    return res.status(201).json({
-      message: 'Perfil de paciente criado com sucesso',
-      patientProfile
-    });
-  } catch (error) {
+//     return res.status(201).json({
+//       message: 'Perfil de paciente criado com sucesso',
+//       patientProfile
+//     });
+//   } catch (error) {
 
-    console.error('Error in createPatientProfile:', error);
-    return res.status(500).json({ error: 'Erro ao criar perfil de paciente' });
-  }
-};
+//     console.error('Error in createPatientProfile:', error);
+//     return res.status(500).json({ error: 'Erro ao criar perfil de paciente' });
+//   }
+// };
 
 const getMyPatientProfile = async (req, res) => {
 
@@ -299,7 +292,7 @@ const updatePatientProfile = async (req, res) => {
 };
 
 module.exports = {
-  createPatientProfile,
+  // createPatientProfile,
   getMyPatientProfile,
   getAllPatientProfiles,
   getPatientProfileById,
