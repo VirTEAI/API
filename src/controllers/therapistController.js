@@ -18,10 +18,8 @@ const prisma = new PrismaClient();
 
 //     const {
 //       professionalRegister,
-//       country,
 //       city,
 //       birthDate,
-//       position,
 //       specialty,
 //       experience,
 //       attendanceModality
@@ -29,10 +27,8 @@ const prisma = new PrismaClient();
 
 //     if (
 //       !professionalRegister ||
-//       !country ||
 //       !city ||
 //       !birthDate ||
-//       !position ||
 //       !specialty ||
 //       !experience
 //     ) {
@@ -55,10 +51,8 @@ const prisma = new PrismaClient();
 //       data: {
 //         userId,
 //         professionalRegister,
-//         country,
 //         city,
 //         birthDate: parseDate(birthDate),
-//         position,
 //         specialty,
 //         experience,
 //         attendanceModality: attendanceModality || 'ONLINE'
@@ -250,9 +244,7 @@ const updateTherapistProfile = async (req, res) => {
     const data = {};
 
     if (req.body.professionalRegister) data.professionalRegister = normalizeString(req.body.professionalRegister);
-    if (req.body.country) data.country = normalizeString(req.body.country);
     if (req.body.city) data.city = normalizeString(req.body.city);
-    if (req.body.position) data.position = normalizeString(req.body.position);
     if (req.body.specialty) data.specialty = normalizeString(req.body.specialty);
     if (req.body.experience) data.experience = normalizeString(req.body.experience);
 

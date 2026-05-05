@@ -36,14 +36,12 @@ const register = async (req, res) => {
     const name = String(req.body.name || '').trim();
     const email = normalizeEmail(req.body.email);
     const password = req.body.password;
-    const country = normalizeString(req.body.country);
     const city = normalizeString(req.body.city);
     const birthDate = parseDate(req.body.birthDate);
     const role = String(req.body.role).trim().toUpperCase();
 
     let {
         professionalRegister,
-        position,
         specialty,
         experience,
         attendanceModality
@@ -78,7 +76,7 @@ const register = async (req, res) => {
       return res.status(409).json({ error: 'Email já está em uso' });
     }
     
-    if (!country || !city || !birthDate) {
+    if (!city || !birthDate) {
       
       return res.status(400).json({
         error: 'país, cidade e data de nascimento são obrigatórios'
@@ -89,7 +87,6 @@ const register = async (req, res) => {
 
       if (
         !professionalRegister ||
-        !position ||
         !specialty ||
         !experience
       ) {
@@ -127,7 +124,6 @@ const register = async (req, res) => {
       const patientProfile = await prisma.patientProfile.create({
         data: {
           userId,
-          country,
           city,
           birthDate
         }
@@ -152,10 +148,8 @@ const register = async (req, res) => {
         data: {
           userId,
           professionalRegister,
-          country,
           city,
           birthDate: parseDate(birthDate),
-          position,
           specialty,
           experience,
           attendanceModality: attendanceModality || 'ONLINE'

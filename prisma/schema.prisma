@@ -75,7 +75,6 @@ model PatientProfile {
   patientProfileId Int           @id @default(autoincrement())
   userId           Int           @unique
   therapistId      Int?          
-  country          String
   city             String
   birthDate        DateTime
   careStatus       CareStatus    @default(NOT_STARTED)
@@ -97,10 +96,8 @@ model TherapistProfile {
   therapistProfileId    Int                @id @default(autoincrement())
   userId                Int                @unique
   professionalRegister String
-  country              String
   city                 String
   birthDate            DateTime
-  position             String
   specialty            String
   experience           String
   attendanceModality   AttendanceModality  @default(ONLINE)

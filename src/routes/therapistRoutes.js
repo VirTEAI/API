@@ -35,14 +35,11 @@ const router = express.Router();
 //  *         application/json:
 //  *           schema:
 //  *             type: object
-//  *             required: [professionalRegister, country, city, birthDate, position, specialty, experience]
+//  *             required: [professionalRegister, city, birthDate, specialty, experience]
 //  *             properties:
 //  *               professionalRegister:
 //  *                 type: string
 //  *                 example: CRP 00/00000
-//  *               country:
-//  *                 type: string
-//  *                 example: Brasil
 //  *               city:
 //  *                 type: string
 //  *                 example: São Paulo
@@ -50,9 +47,6 @@ const router = express.Router();
 //  *                 type: string
 //  *                 format: date
 //  *                 example: 1990-05-20
-//  *               position:
-//  *                 type: string
-//  *                 example: Terapeuta
 //  *               specialty:
 //  *                 type: string
 //  *                 example: Terapia Cognitivo-Comportamental
@@ -171,9 +165,7 @@ router.get('/:userId', auth, getTherapistProfileById);
  *               professionalRegister:
  *                 type: string
  *                 example: CRP 00/00000
- *               country:
- *                 type: string
- *                 example: Brasil
+
  *               city:
  *                 type: string
  *                 example: São Paulo
@@ -181,9 +173,6 @@ router.get('/:userId', auth, getTherapistProfileById);
  *                 type: string
  *                 format: date
  *                 example: 1990-05-20
- *               position:
- *                 type: string
- *                 example: Terapeuta
  *               specialty:
  *                 type: string
  *                 example: Terapia Cognitivo-Comportamental

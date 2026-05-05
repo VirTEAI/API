@@ -34,11 +34,8 @@ const router = express.Router();
 //  *         application/json:
 //  *           schema:
 //  *             type: object
-//  *             required: [country, city, birthDate]
+//  *             required: [city, birthDate]
 //  *             properties:
-//  *               country:
-//  *                 type: string
-//  *                 example: Brasil
 //  *               city:
 //  *                 type: string
 //  *                 example: São Paulo
@@ -179,9 +176,6 @@ router.patch('/care-status', auth, role('THERAPIST', 'ADMIN'), updatePatientProf
  *           schema:
  *             type: object
  *             properties:
- *               country:
- *                 type: string
- *                 example: Brasil
  *               city:
  *                 type: string
  *                 example: São Paulo

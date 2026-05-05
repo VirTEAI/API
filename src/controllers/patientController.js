@@ -15,11 +15,10 @@ const prisma = new PrismaClient();
 //     }
     
 //     const userId = Number(req.body.userId);
-//     const country = normalizeString(req.body.country);
 //     const city = normalizeString(req.body.city);
 //     const birthDate = parseDate(req.body.birthDate);
 
-//     if (!country || !city || !birthDate) {
+//     if (!city || !birthDate) {
 
 //       return res.status(400).json({
 //         error: 'país, cidade e data de nascimento são obrigatórios'
@@ -38,7 +37,6 @@ const prisma = new PrismaClient();
 //     const patientProfile = await prisma.patientProfile.create({
 //       data: {
 //         userId,
-//         country,
 //         city,
 //         birthDate
 //       }
@@ -260,7 +258,6 @@ const updatePatientProfile = async (req, res) => {
 
     const data = {};
 
-    if (req.body.country) data.country = normalizeString(req.body.country);
     if (req.body.city) data.city = normalizeString(req.body.city);
 
     if (req.body.birthDate) {

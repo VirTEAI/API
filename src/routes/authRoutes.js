@@ -69,7 +69,7 @@ const router = express.Router();
  *         application/json:
  *           schema:
  *             type: object
- *             required: [name, email, password, role, country, city, birthDate]
+ *             required: [name, email, password, role, city, birthDate]
  *             properties:
  *               name:
  *                 type: string
@@ -86,9 +86,6 @@ const router = express.Router();
  *                 type: string
  *                 enum: [PATIENT, THERAPIST, ADMIN]
  *                 example: PATIENT
- *               country:
- *                 type: string
- *                 example: Brazil
  *               city:
  *                 type: string
  *                 example: São Paulo
@@ -99,9 +96,6 @@ const router = express.Router();
  *               professionalRegister (para terapeutas):
  *                 type: string
  *                 example: CRP 12345
- *               position (para terapeutas):
- *                 type: string
- *                 example: Psicólogo Clínico
  *               specialty (para terapeutas):
  *                 type: string
  *                 example: Terapia Cognitivo-Comportamental
