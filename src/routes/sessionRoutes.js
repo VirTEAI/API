@@ -54,7 +54,7 @@ const attachLimiter = rateLimit({
  *       500:
  *         description: Erro do servidor
  */
-router.get('/:sessionId', role(['THERAPIST', 'ADMIN']), validateLimiter, getSessionId);
+router.get('/:sessionId', role('THERAPIST', 'ADMIN'), validateLimiter, getSessionId);
 
 /**
  * @openapi
@@ -71,7 +71,7 @@ router.get('/:sessionId', role(['THERAPIST', 'ADMIN']), validateLimiter, getSess
  *       500:
  *         description: Erro do servidor
  */
-router.post('/generate', auth, role(['THERAPIST', 'ADMIN']), generateSessionId);
+router.post('/generate', auth, role('THERAPIST', 'ADMIN'), generateSessionId);
 
 /**
  * @openapi
@@ -106,7 +106,7 @@ router.post('/generate', auth, role(['THERAPIST', 'ADMIN']), generateSessionId);
  *       500:
  *         description: Erro do servidor
  */
-// router.post('/attach', role(['THERAPIST', 'ADMIN']), attachLimiter, attachSessionData);
+// router.post('/attach', role('THERAPIST', 'ADMIN'), attachLimiter, attachSessionData);
 router.post('/attach', attachLimiter, attachSessionData); // Como ele vem do app do unity, não tem token de autenticação, então não dá pra usar o middleware de role aqui
 
 module.exports = router;
