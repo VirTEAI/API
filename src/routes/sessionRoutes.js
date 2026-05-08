@@ -54,7 +54,7 @@ const attachLimiter = rateLimit({
  *       500:
  *         description: Erro do servidor
  */
-router.get('/:sessionId', role('THERAPIST', 'ADMIN'), validateLimiter, getSessionId);
+router.get('/:sessionId', validateLimiter, getSessionId);
 
 /**
  * @openapi
