@@ -9,7 +9,7 @@ const hashValue = (value) =>
   crypto.createHash('sha256').update(value).digest('hex');
 
 const generateSecureSessionId = () =>
-    crypto.randomInt(1000000, 10000000).toString(); 
+  crypto.randomInt(100000, 1000000).toString();
 
 const getSessionId = async (req, res) => {
 
