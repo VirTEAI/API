@@ -71,7 +71,7 @@ router.get('/:sessionId', role(['THERAPIST', 'ADMIN']), validateLimiter, getSess
  *       500:
  *         description: Erro do servidor
  */
-router.post('/generate', role(['THERAPIST', 'ADMIN']), auth, generateSessionId);
+router.post('/generate', auth, role(['THERAPIST', 'ADMIN']), generateSessionId);
 
 /**
  * @openapi
