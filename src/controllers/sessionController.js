@@ -53,7 +53,7 @@ const generateSessionId = async (req, res) => {
 
   try {
 
-    const userId = String(req.body.userId || '').trim().toLowerCase();
+    const userId = Number(req.body.userId);
 
     if (!userId) {
 
