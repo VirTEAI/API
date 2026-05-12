@@ -164,7 +164,8 @@ const getPatientProfileById = async (req, res) => {
             name: true,
             role: true,
             createdAt: true,
-            updatedAt: true
+            updatedAt: true,
+            sessions: true
           }
         },
         therapist: true,
