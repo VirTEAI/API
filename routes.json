@@ -1,0 +1,701 @@
+{
+  "app": {
+    "name": "TCC VirTEAI API",
+    "description": "Backend API for VirTEAI virtual therapy application",
+    "baseUrl": "https://virteai-backend-tcc.onrender.com",
+    "routes": [
+      {
+        "method": "GET",
+        "path": "/",
+        "description": "Health check - returns welcome message",
+        "authentication": "None",
+        "authorization": "None"
+      },
+      {
+        "method": "GET",
+        "path": "/health",
+        "description": "Check API and database health status",
+        "authentication": "None",
+        "authorization": "None"
+      },
+      {
+        "method": "GET",
+        "path": "/api-docs",
+        "description": "Swagger UI documentation interface",
+        "authentication": "None",
+        "authorization": "None"
+      },
+      {
+        "method": "GET",
+        "path": "/api-docs.json",
+        "description": "OpenAPI specification in JSON format",
+        "authentication": "None",
+        "authorization": "None"
+      }
+    ]
+  },
+  "auth": {
+    "prefix": "/auth",
+    "description": "User authentication and account management",
+    "routes": [
+      {
+        "method": "POST",
+        "path": "/auth/register",
+        "description": "Register a new user with associated profile (patient or therapist)",
+        "authentication": "None",
+        "authorization": "None",
+        "requestBody": {
+          "required": true,
+          "fields": [
+            "name (string)",
+            "email (string)",
+            "password (string)",
+            "role (enum: PATIENT, THERAPIST, ADMIN)",
+            "city (string)",
+            "birthDate (date)",
+            "professionalRegister (string, required for therapists)",
+            "specialty (string, required for therapists)",
+            "experience (string, required for therapists)",
+            "attendanceModality (enum: ONLINE, PRESENCIAL, BOTH, optional for therapists)"
+          ]
+        }
+      },
+      {
+        "method": "POST",
+        "path": "/auth/login",
+        "description": "Authenticate user and return JWT token",
+        "authentication": "None",
+        "authorization": "None",
+        "requestBody": {
+          "required": true,
+          "fields": [
+            "email (string)",
+            "password (string)"
+          ]
+        }
+      },
+      {
+        "method": "POST",
+        "path": "/auth/forgot-password",
+        "description": "Request password reset link (always returns success to prevent user enumeration)",
+        "authentication": "None",
+        "authorization": "None",
+        "requestBody": {
+          "required": true,
+          "fields": ["email (string)"]
+        }
+      },
+      {
+        "method": "POST",
+        "path": "/auth/reset-password",
+        "description": "Reset password using valid reset token",
+        "authentication": "None",
+        "authorization": "None",
+        "requestBody": {
+          "required": true,
+          "fields": [
+            "token (string)",
+            "password (string)"
+          ]
+        }
+      }
+    ]
+  },
+  "patients": {
+    "prefix": "/patients",
+    "description": "Patient profile management",
+    "routes": [
+      {
+        "method": "GET",
+        "path": "/patients/me",
+        "description": "Get authenticated patient's own profile",
+        "authentication": "JWT Token Required",
+        "authorization": "PATIENT role required",
+        "parameters": []
+      },
+      {
+        "method": "GET",
+        "path": "/patients/list",
+        "description": "List all patient profiles",
+        "authentication": "JWT Token Required",
+        "authorization": "Any authenticated user",
+        "parameters": []
+      },
+      {
+        "method": "GET",
+        "path": "/patients/:userId",
+        "description": "Get specific patient profile by ID",
+        "authentication": "JWT Token Required",
+        "authorization": "THERAPIST or ADMIN role required",
+        "parameters": [
+          {
+            "name": "userId",
+            "type": "integer",
+            "required": true,
+            "example": "1"
+          }
+        ]
+      },
+      {
+        "method": "PATCH",
+        "path": "/patients/care-status",
+        "description": "Update patient's care status",
+        "authentication": "JWT Token Required",
+        "authorization": "THERAPIST or ADMIN role required",
+        "requestBody": {
+          "required": true,
+          "fields": [
+            "careStatus (enum: NOT_STARTED, IN_PROGRESS, PAUSED, FINISHED)"
+          ]
+        }
+      },
+      {
+        "method": "PUT",
+        "path": "/patients/update",
+        "description": "Update authenticated patient's own profile",
+        "authentication": "JWT Token Required",
+        "authorization": "PATIENT role required",
+        "requestBody": {
+          "required": false,
+          "fields": [
+            "city (string, optional)",
+            "birthDate (date, optional)",
+            "careStatus (string, optional)"
+          ]
+        }
+      }
+    ]
+  },
+  "therapists": {
+    "prefix": "/therapists",
+    "description": "Therapist profile management",
+    "routes": [
+      {
+        "method": "GET",
+        "path": "/therapists/me",
+        "description": "Get authenticated therapist's own profile",
+        "authentication": "JWT Token Required",
+        "authorization": "THERAPIST role required",
+        "parameters": []
+      },
+      {
+        "method": "GET",
+        "path": "/therapists/list",
+        "description": "List all therapist profiles",
+        "authentication": "JWT Token Required",
+        "authorization": "Any authenticated user",
+        "parameters": []
+      },
+      {
+        "method": "GET",
+        "path": "/therapists/patients",
+        "description": "List patients associated with authenticated therapist",
+        "authentication": "JWT Token Required",
+        "authorization": "THERAPIST role required",
+        "parameters": []
+      },
+      {
+        "method": "GET",
+        "path": "/therapists/:userId",
+        "description": "Get specific therapist profile by ID",
+        "authentication": "JWT Token Required",
+        "authorization": "Any authenticated user",
+        "parameters": [
+          {
+            "name": "userId",
+            "type": "integer",
+            "required": true,
+            "example": "1"
+          }
+        ]
+      },
+      {
+        "method": "PUT",
+        "path": "/therapists/update",
+        "description": "Update authenticated therapist's own profile",
+        "authentication": "JWT Token Required",
+        "authorization": "THERAPIST role required",
+        "requestBody": {
+          "required": false,
+          "fields": [
+            "professionalRegister (string, optional)",
+            "city (string, optional)",
+            "birthDate (date, optional)",
+            "specialty (string, optional)",
+            "experience (string, optional)",
+            "attendanceModality (enum: ONLINE, PRESENCIAL, BOTH, optional)"
+          ]
+        }
+      }
+    ]
+  },
+  "sessions": {
+    "prefix": "/sessions",
+    "description": "Temporary session management for data collection from Unity app",
+    "routes": [
+      {
+        "method": "GET",
+        "path": "/sessions/:sessionId",
+        "description": "Validate session ID (check if valid and not expired)",
+        "authentication": "None",
+        "authorization": "THERAPIST or ADMIN role required",
+        "parameters": [
+          {
+            "name": "sessionId",
+            "type": "string",
+            "required": true,
+            "example": "1234567..."
+          }
+        ],
+        "rateLimiting": "50 requests per 10 minutes"
+      },
+      {
+        "method": "POST",
+        "path": "/sessions/generate",
+        "description": "Generate temporary session token (single-use)",
+        "authentication": "JWT Token Required",
+        "authorization": "THERAPIST or ADMIN role required",
+        "parameters": [],
+        "rateLimiting": "No specific limit (API limiter applies)"
+      },
+      {
+        "method": "POST",
+        "path": "/sessions/attach",
+        "description": "Store session data and invalidate token (single-use, no auth required - called from Unity app)",
+        "authentication": "None",
+        "authorization": "None",
+        "requestBody": {
+          "required": true,
+          "fields": [
+            "sessionId (string)",
+            "data (object, optional) - example: { gaze: 'object_name', durationSeconds: 5 }"
+          ]
+        },
+        "rateLimiting": "30 requests per 10 minutes"
+      }
+    ]
+  },
+  "tests": {
+    "prefix": "/tests",
+    "description": "Patient assessment tests",
+    "routes": [
+      {
+        "method": "GET",
+        "path": "/tests/get-test-10",
+        "description": "Check if patient has completed 10-question test",
+        "authentication": "JWT Token Required",
+        "authorization": "PATIENT role required",
+        "parameters": []
+      },
+      {
+        "method": "GET",
+        "path": "/tests/get-test-50",
+        "description": "Check if patient has completed 50-question test",
+        "authentication": "JWT Token Required",
+        "authorization": "PATIENT role required",
+        "parameters": []
+      },
+      {
+        "method": "POST",
+        "path": "/tests/submit-test-10",
+        "description": "Submit answers for 10-question test and calculate score",
+        "authentication": "JWT Token Required",
+        "authorization": "PATIENT role required",
+        "requestBody": {
+          "required": true,
+          "fields": [
+            "answers (array of responses based on 10 questions)"
+          ]
+        }
+      },
+      {
+        "method": "POST",
+        "path": "/tests/submit-test-50",
+        "description": "Submit answers for 50-question test and calculate score",
+        "authentication": "JWT Token Required",
+        "authorization": "PATIENT role required",
+        "requestBody": {
+          "required": true,
+          "fields": [
+            "answers (array of responses based on 50 questions)"
+          ]
+        }
+      }
+    ]
+  },
+  "consultations": {
+    "prefix": "/consultations",
+    "description": "Consultation records management",
+    "routes": [
+      {
+        "method": "POST",
+        "path": "/consultations/create",
+        "description": "Create new consultation record",
+        "authentication": "JWT Token Required",
+        "authorization": "THERAPIST or ADMIN role required",
+        "requestBody": {
+          "required": true,
+          "fields": [
+            "patientId (integer)",
+            "therapistId (integer, optional)",
+            "consultationDate (date-time)",
+            "objective (string)",
+            "score (integer)"
+          ]
+        }
+      },
+      {
+        "method": "GET",
+        "path": "/consultations/list",
+        "description": "List consultations (patient sees own, therapist sees their patients', admin sees all)",
+        "authentication": "JWT Token Required",
+        "authorization": "PATIENT, THERAPIST, or ADMIN role required",
+        "parameters": []
+      },
+      {
+        "method": "GET",
+        "path": "/consultations/:consultationId",
+        "description": "Get specific consultation by ID",
+        "authentication": "JWT Token Required",
+        "authorization": "PATIENT, THERAPIST, or ADMIN role required",
+        "parameters": [
+          {
+            "name": "consultationId",
+            "type": "integer",
+            "required": true,
+            "example": "1"
+          }
+        ]
+      },
+      {
+        "method": "PUT",
+        "path": "/consultations/update/:consultationId",
+        "description": "Update existing consultation",
+        "authentication": "JWT Token Required",
+        "authorization": "THERAPIST or ADMIN role required",
+        "parameters": [
+          {
+            "name": "consultationId",
+            "type": "integer",
+            "required": true,
+            "example": "1"
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "fields": [
+            "patientId (integer, optional)",
+            "consultationDate (date-time, optional)",
+            "objective (string, optional)",
+            "score (integer, optional)"
+          ]
+        }
+      },
+      {
+        "method": "DELETE",
+        "path": "/consultations/delete/:consultationId",
+        "description": "Delete consultation",
+        "authentication": "JWT Token Required",
+        "authorization": "THERAPIST or ADMIN role required",
+        "parameters": [
+          {
+            "name": "consultationId",
+            "type": "integer",
+            "required": true,
+            "example": "1"
+          }
+        ]
+      }
+    ]
+  },
+  "objectives": {
+    "prefix": "/objectives",
+    "description": "Therapeutic objectives management",
+    "routes": [
+      {
+        "method": "POST",
+        "path": "/objectives/create",
+        "description": "Create new therapeutic objective for patient",
+        "authentication": "JWT Token Required",
+        "authorization": "THERAPIST or ADMIN role required",
+        "requestBody": {
+          "required": true,
+          "fields": [
+            "patientId (integer)",
+            "therapistId (integer, optional)",
+            "title (string)"
+          ]
+        }
+      },
+      {
+        "method": "GET",
+        "path": "/objectives/list",
+        "description": "List objectives (patient sees own, therapist sees their patients', admin sees all)",
+        "authentication": "JWT Token Required",
+        "authorization": "PATIENT, THERAPIST, or ADMIN role required",
+        "parameters": []
+      },
+      {
+        "method": "GET",
+        "path": "/objectives/:objectiveId",
+        "description": "Get specific objective by ID",
+        "authentication": "JWT Token Required",
+        "authorization": "PATIENT, THERAPIST, or ADMIN role required",
+        "parameters": [
+          {
+            "name": "objectiveId",
+            "type": "integer",
+            "required": true,
+            "example": "1"
+          }
+        ]
+      },
+      {
+        "method": "PUT",
+        "path": "/objectives/update/:objectiveId",
+        "description": "Update existing objective",
+        "authentication": "JWT Token Required",
+        "authorization": "THERAPIST or ADMIN role required",
+        "parameters": [
+          {
+            "name": "objectiveId",
+            "type": "integer",
+            "required": true,
+            "example": "1"
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "fields": [
+            "title (string, optional)"
+          ]
+        }
+      },
+      {
+        "method": "DELETE",
+        "path": "/objectives/delete/:objectiveId",
+        "description": "Delete objective",
+        "authentication": "JWT Token Required",
+        "authorization": "THERAPIST or ADMIN role required",
+        "parameters": [
+          {
+            "name": "objectiveId",
+            "type": "integer",
+            "required": true,
+            "example": "1"
+          }
+        ]
+      }
+    ]
+  },
+  "reports": {
+    "prefix": "/reports",
+    "description": "Clinical reports management",
+    "routes": [
+      {
+        "method": "POST",
+        "path": "/reports/create",
+        "description": "Create new clinical report",
+        "authentication": "JWT Token Required",
+        "authorization": "THERAPIST or ADMIN role required",
+        "requestBody": {
+          "required": true,
+          "fields": [
+            "patientId (integer)",
+            "therapistId (integer, optional)",
+            "sessionObjective (string)",
+            "title (string)",
+            "evolution (string) - enum: IMPROVED, MAINTAINED, REGRESSED",
+            "content (string)"
+          ]
+        }
+      },
+      {
+        "method": "GET",
+        "path": "/reports/list",
+        "description": "List reports (patient sees own, therapist sees their patients', admin sees all)",
+        "authentication": "JWT Token Required",
+        "authorization": "PATIENT, THERAPIST, or ADMIN role required",
+        "parameters": []
+      },
+      {
+        "method": "GET",
+        "path": "/reports/:reportId",
+        "description": "Get specific report by ID",
+        "authentication": "JWT Token Required",
+        "authorization": "PATIENT, THERAPIST, or ADMIN role required",
+        "parameters": [
+          {
+            "name": "reportId",
+            "type": "integer",
+            "required": true,
+            "example": "1"
+          }
+        ]
+      },
+      {
+        "method": "PUT",
+        "path": "/reports/update/:reportId",
+        "description": "Update existing report",
+        "authentication": "JWT Token Required",
+        "authorization": "THERAPIST or ADMIN role required",
+        "parameters": [
+          {
+            "name": "reportId",
+            "type": "integer",
+            "required": true,
+            "example": "1"
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "fields": [
+            "sessionObjective (string, optional)",
+            "title (string, optional)",
+            "evolution (string, optional) - enum: IMPROVED, MAINTAINED, REGRESSED",
+            "content (string, optional)"
+          ]
+        }
+      },
+      {
+        "method": "DELETE",
+        "path": "/reports/delete/:reportId",
+        "description": "Delete report",
+        "authentication": "JWT Token Required",
+        "authorization": "THERAPIST or ADMIN role required",
+        "parameters": [
+          {
+            "name": "reportId",
+            "type": "integer",
+            "required": true,
+            "example": "1"
+          }
+        ]
+      }
+    ]
+  },
+  "scenarios": {
+    "prefix": "/scenarios",
+    "description": "Therapeutic scenarios management",
+    "routes": [
+      {
+        "method": "POST",
+        "path": "/scenarios/create",
+        "description": "Create new therapeutic scenario for patient",
+        "authentication": "JWT Token Required",
+        "authorization": "THERAPIST or ADMIN role required",
+        "requestBody": {
+          "required": true,
+          "fields": [
+            "patientId (integer)",
+            "therapistId (integer, optional)",
+            "title (string)",
+            "status (string, optional) - enum: NOT_STARTED, IN_PROGRESS, PAUSED, FINISHED"
+          ]
+        }
+      },
+      {
+        "method": "GET",
+        "path": "/scenarios/list",
+        "description": "List scenarios (patient sees own, therapist sees their patients', admin sees all)",
+        "authentication": "JWT Token Required",
+        "authorization": "PATIENT, THERAPIST, or ADMIN role required",
+        "parameters": []
+      },
+      {
+        "method": "GET",
+        "path": "/scenarios/:scenarioId",
+        "description": "Get specific scenario by ID",
+        "authentication": "JWT Token Required",
+        "authorization": "PATIENT, THERAPIST, or ADMIN role required",
+        "parameters": [
+          {
+            "name": "scenarioId",
+            "type": "integer",
+            "required": true,
+            "example": "1"
+          }
+        ]
+      },
+      {
+        "method": "PUT",
+        "path": "/scenarios/update/:scenarioId",
+        "description": "Update existing scenario",
+        "authentication": "JWT Token Required",
+        "authorization": "THERAPIST or ADMIN role required",
+        "parameters": [
+          {
+            "name": "scenarioId",
+            "type": "integer",
+            "required": true,
+            "example": "1"
+          }
+        ],
+        "requestBody": {
+          "required": false,
+          "fields": [
+            "title (string, optional)",
+            "status (string, optional) - enum: NOT_STARTED, IN_PROGRESS, PAUSED, FINISHED"
+          ]
+        }
+      },
+      {
+        "method": "DELETE",
+        "path": "/scenarios/delete/:scenarioId",
+        "description": "Delete scenario",
+        "authentication": "JWT Token Required",
+        "authorization": "THERAPIST or ADMIN role required",
+        "parameters": [
+          {
+            "name": "scenarioId",
+            "type": "integer",
+            "required": true,
+            "example": "1"
+          }
+        ]
+      }
+    ]
+  },
+  "summary": {
+    "totalRoutes": 49,
+    "routesByModule": {
+      "app": 4,
+      "auth": 4,
+      "patients": 5,
+      "therapists": 5,
+      "sessions": 3,
+      "tests": 4,
+      "consultations": 5,
+      "objectives": 5,
+      "reports": 5,
+      "scenarios": 5
+    },
+    "authentication": {
+      "type": "JWT Bearer Token",
+      "location": "Authorization header",
+      "publicRoutes": [
+        "GET /",
+        "GET /health",
+        "GET /api-docs",
+        "GET /api-docs.json",
+        "POST /auth/register",
+        "POST /auth/login",
+        "POST /auth/forgot-password",
+        "POST /auth/reset-password",
+        "POST /sessions/attach"
+      ]
+    },
+    "rateLimiting": {
+      "global": "300 requests per 15 minutes",
+      "sessions": {
+        "validate": "50 requests per 10 minutes",
+        "attach": "30 requests per 10 minutes"
+      }
+    },
+    "userRoles": [
+      "PATIENT - Can access own data, view therapist info, take tests",
+      "THERAPIST - Can access patient data, create/update records, manage scenarios and objectives",
+      "ADMIN - Can access all data and perform all operations"
+    ]
+  }
+}
