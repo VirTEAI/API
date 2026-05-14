@@ -39,7 +39,7 @@ app.use(cors({
       return callback(null, true);
     }
 
-    return callback(new Error('Não permitido por CORS', origin, allowedOrigins));
+    return callback(new Error('Não permitido por CORS' + origin + allowedOrigins));
   },
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
