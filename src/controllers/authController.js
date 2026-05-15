@@ -4,6 +4,9 @@ const crypto = require('crypto');
 const { PrismaClient } = require('@prisma/client');
 const nodemailer = require('nodemailer');
 const { normalizeString, parseDate } = require('../utils/validation');
+import dns from 'dns';
+
+dns.setDefaultResultOrder('ipv4first');
 
 const prisma = new PrismaClient();
 
@@ -281,15 +284,27 @@ const forgotPassword = async (req, res) => {
 
     const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`;
 
+    // const transporter = nodemailer.createTransport({
+    //   host: process.env.SMTP_HOST,
+    //   port: Number(process.env.SMTP_PORT),
+    //   secure: Number(process.env.SMTP_PORT) === 465,
+    //   family: 4,
+    //   auth: {
+    //     user: process.env.SMTP_USER,
+    //     pass: process.env.SMTP_PASS,
+    //   },
+    // });
+
     const transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST,
-      port: Number(process.env.SMTP_PORT),
+      host: 'smtp.gmail.com',
+      port: 587,
       secure: false,
+      requireTLS: true,
+      family: 4,
       auth: {
         user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS
+        pass: process.env.SMTP_PASS,
       },
-      family: 4,
     });
 
     await transporter.sendMail({
