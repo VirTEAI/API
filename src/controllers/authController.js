@@ -4,7 +4,7 @@ const crypto = require('crypto');
 const { PrismaClient } = require('@prisma/client');
 const nodemailer = require('nodemailer');
 const { normalizeString, parseDate } = require('../utils/validation');
-import dns from 'dns';
+const dns = require('dns');
 
 dns.setDefaultResultOrder('ipv4first');
 
