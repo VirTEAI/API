@@ -2,8 +2,37 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const { PrismaClient } = require('@prisma/client');
-const nodemailer = require('nodemailer');
 const { normalizeString, parseDate } = require('../utils/validation');
+const { google } = require('googleapis');
+
+const oauth2Client = new google.auth.OAuth2(
+  process.env.GOOGLE_CLIENT_ID,
+  process.env.GOOGLE_CLIENT_SECRET
+);
+
+oauth2Client.setCredentials({
+  refresh_token: process.env.GOOGLE_REFRESH_TOKEN,
+});
+
+const gmail = google.gmail({ version: 'v1', auth: oauth2Client });
+
+function createRawMessage({ from, to, subject, html }) {
+  const message = [
+    `From: ${from}`,
+    `To: ${to}`,
+    'Content-Type: text/html; charset="UTF-8"',
+    'MIME-Version: 1.0',
+    `Subject: =?UTF-8?B?${Buffer.from(subject).toString('base64')}?=`,
+    '',
+    html,
+  ].join('\r\n');
+
+  return Buffer.from(message)
+    .toString('base64')
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=+$/g, '');
+}
 
 const prisma = new PrismaClient();
 
@@ -248,22 +277,19 @@ const login = async (req, res) => {
 const forgotPassword = async (req, res) => {
 
   try {
-
     const email = normalizeEmail(req.body.email);
 
     if (!isValidEmail(email)) {
-
       return res.status(200).json({
-        message: 'Se o email existir, um link de redefinição foi enviado'
+        message: 'Se o email existir, um link de redefinição foi enviado',
       });
     }
 
     const user = await prisma.user.findUnique({ where: { email } });
 
     if (!user) {
-      
       return res.status(200).json({
-        message: 'Se o email existir, um link de redefinição foi enviado'
+        message: 'Se o email existir, um link de redefinição foi enviado',
       });
     }
 
@@ -275,43 +301,37 @@ const forgotPassword = async (req, res) => {
       where: { email },
       data: {
         resetToken: resetTokenHash,
-        resetTokenExpiry
-      }
+        resetTokenExpiry,
+      },
     });
 
     const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`;
 
-    const transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST,
-      port: Number(process.env.SMTP_PORT),
-      secure: false,
-      auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS
-      }
-    });
-
-    await transporter.sendMail({
-      from: `"Suporte VirTEAI" <${process.env.MAIL_FROM}>`,
+    const rawMessage = createRawMessage({
+      from: `Suporte VirTEAI <${process.env.GMAIL_USER}>`,
       to: email,
       subject: 'Redefinição de senha',
       html: `
         <p>Você solicitou a redefinição de senha.</p>
         <p>Clique <a href="${resetUrl}">aqui</a> para redefinir sua senha.</p>
         <p>Este link expira em 1 hora.</p>
-      `
+      `,
+    });
+
+    await gmail.users.messages.send({
+      userId: 'me',
+      requestBody: {
+        raw: rawMessage,
+      },
     });
 
     return res.status(200).json({
-      message: 'Se o email existir, um link de redefinição foi enviado'
+      message: 'Se o email existir, um link de redefinição foi enviado',
     });
-
   } catch (error) {
-
     console.error('Erro em forgotPassword:', error);
-    
     return res.status(500).json({
-      error: 'Erro ao enviar link de redefinição'
+      error: 'Erro ao enviar link de redefinição',
     });
   }
 };
