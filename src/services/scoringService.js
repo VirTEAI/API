@@ -14,7 +14,9 @@ function scoreTest10(answers) {
 
   for (const [q, answer] of Object.entries(answers)) {
 
-    const question = Number(q);
+    // O frontend envia as respostas como array (chaves 0..N-1).
+    // Os Sets de configuração usam numeração 1..N, então convertemos.
+    const question = Number(q) + 1;
 
     if (test10Config.positive.has(question)) {
 
@@ -36,7 +38,9 @@ function scoreTest50(answers) {
 
   for (const [q, answer] of Object.entries(answers)) {
 
-    const question = Number(q);
+    // O frontend envia as respostas como array (chaves 0..N-1).
+    // Os Sets de configuração usam numeração 1..N, então convertemos.
+    const question = Number(q) + 1;
 
     if (test50Config.agree.has(question)) {
 

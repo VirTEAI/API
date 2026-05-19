@@ -32,11 +32,12 @@ const getIsTest10Completed = async (req, res) => {
       return res.status(404).json({ error: 'Perfil de paciente não encontrado' });
     }
 
-    const isCompleted = patientProfile.test10Score ? patientProfile.test10Score !== 0 : false;
+    const isCompleted = patientProfile.test10CompletedAt !== null;
 
-    return res.status(200).json({ 
+    return res.status(200).json({
         isTest10Completed: isCompleted,
-        score: patientProfile.test10Score || 0
+        score: patientProfile.test10Score || 0,
+        completedAt: patientProfile.test10CompletedAt
     });
   } catch (error) {
 
@@ -58,11 +59,12 @@ const getIsTest50Completed = async (req, res) => {
       return res.status(404).json({ error: 'Perfil de paciente não encontrado' });
     }
 
-    const isCompleted = patientProfile.test50Score ? patientProfile.test50Score !== 0 : false;
+    const isCompleted = patientProfile.test50CompletedAt !== null;
 
-    return res.status(200).json({ 
+    return res.status(200).json({
         isTest50Completed: isCompleted,
-        score: patientProfile.test50Score || 0
+        score: patientProfile.test50Score || 0,
+        completedAt: patientProfile.test50CompletedAt
     });
   } catch (error) {
 
@@ -93,16 +95,16 @@ const submitTest10 = async (req, res) => {
     }
 
     const score = scoreTest10(answers);
-
-    patientProfile.test10Score = score;
+    const completedAt = new Date();
 
     await prisma.patientProfile.update({
       where: { userId },
-      data: { test10Score: score }
+      data: { test10Score: score, test10CompletedAt: completedAt }
     });
 
     return res.status(200).json({
       score,
+      completedAt,
       interpretation: score > 6 ? "acima_do_limite" : "abaixo_do_limite",
     });
   } catch (error) {
@@ -134,16 +136,16 @@ const submitTest50 = async (req, res) => {
     }
 
     const score = scoreTest50(answers);
-
-    patientProfile.test50Score = score;
+    const completedAt = new Date();
 
     await prisma.patientProfile.update({
       where: { userId },
-      data: { test50Score: score }
+      data: { test50Score: score, test50CompletedAt: completedAt }
     });
 
     return res.status(200).json({
       score,
+      completedAt,
       interpretation:
         score >= 32 ? "altas_caracteristicas" :
         score >= 16 ? "moderadas_caracteristicas" :
