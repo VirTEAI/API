@@ -25,24 +25,11 @@ app.use(helmet());
 
 app.use(express.json());
 
-// CORS configuration
-const allowedOrigins = process.env.FRONTEND_URL
-  ? [process.env.FRONTEND_URL]
-  : ['http://localhost:3000'];
-
+// CORS configuration — liberado para qualquer origem.
+// Usa `origin: true` (reflete a origem do request) para manter compatibilidade
+// com `credentials: true` em navegadores (que rejeitam `*` quando há credenciais).
 app.use(cors({
-  origin: function (origin, callback) {
-    // allow server-to-server or mobile apps (no origin)
-    if (!origin) return callback(null, true);
-
-    if (allowedOrigins.includes(origin)) {
-      return callback(null, true);
-    }
-
-    return callback(
-      new Error(`Não permitido por CORS: ${origin}. Permitidos: ${allowedOrigins.join(', ')}`)
-    );
-  },
+  origin: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true

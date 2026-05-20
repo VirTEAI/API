@@ -80,6 +80,8 @@ model PatientProfile {
   careStatus       CareStatus    @default(NOT_STARTED)
   test10Score      Int           @default(0)
   test50Score      Int           @default(0)
+  test10CompletedAt DateTime?
+  test50CompletedAt DateTime?
   createdAt        DateTime      @default(now())
   updatedAt        DateTime      @updatedAt
 

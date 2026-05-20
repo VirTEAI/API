@@ -170,7 +170,17 @@ const getTherapistPatients = async (req, res) => {
     }
 
     const patients = await prisma.patientProfile.findMany({
-      where: { therapistId: therapistProfile.userId }
+      where: { therapistId: therapistProfile.userId },
+      include: {
+        user: {
+          select: {
+            userId: true,
+            name: true,
+            email: true,
+            role: true,
+          }
+        }
+      }
     });
 
     return res.json(patients);
