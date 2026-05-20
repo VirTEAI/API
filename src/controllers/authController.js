@@ -292,8 +292,8 @@ const forgotPassword = async (req, res) => {
       });
     }
 
-    // Token longo e seguro, em vez de 5 dígitos
-    const resetToken = crypto.randomBytes(32).toString('hex');
+    // Token de 5 dígitos para redefinição de senha
+    const resetToken = crypto.randomInt(100000, 1000000).toString();
     const resetTokenHash = hashToken(resetToken);
     const resetTokenExpiry = new Date(Date.now() + RESET_TOKEN_EXPIRES_IN_MS);
 
