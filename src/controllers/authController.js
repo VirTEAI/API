@@ -293,7 +293,7 @@ const forgotPassword = async (req, res) => {
     }
 
     // Token de 5 dígitos para redefinição de senha
-    const resetToken = crypto.randomInt(100000, 1000000).toString();
+    const resetToken = crypto.randomInt(10000, 100000).toString();
     const resetTokenHash = hashToken(resetToken);
     const resetTokenExpiry = new Date(Date.now() + RESET_TOKEN_EXPIRES_IN_MS);
 
