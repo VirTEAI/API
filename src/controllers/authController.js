@@ -275,7 +275,6 @@ const login = async (req, res) => {
 };
 
 const forgotPassword = async (req, res) => {
-
   try {
     const email = normalizeEmail(req.body.email);
 
@@ -293,6 +292,7 @@ const forgotPassword = async (req, res) => {
       });
     }
 
+    // Token longo e seguro, em vez de 5 dígitos
     const resetToken = crypto.randomBytes(32).toString('hex');
     const resetTokenHash = hashToken(resetToken);
     const resetTokenExpiry = new Date(Date.now() + RESET_TOKEN_EXPIRES_IN_MS);
@@ -313,8 +313,10 @@ const forgotPassword = async (req, res) => {
       subject: 'Redefinição de senha',
       html: `
         <p>Você solicitou a redefinição de senha.</p>
-        <p>Clique <a href="${resetUrl}">aqui</a> para redefinir sua senha.</p>
-        <p>Este link expira em 1 hora.</p>
+        <p>Seu token de redefinição é:</p>
+        <p><strong>${resetToken}</strong></p>
+        <p>Ou clique <a href="${resetUrl}">aqui</a> para redefinir sua senha.</p>
+        <p>Este token expira em 1 hora.</p>
       `,
     });
 

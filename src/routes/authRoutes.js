@@ -174,7 +174,7 @@ router.post('/login', login);
  *                 example: john@email.com
  *     responses:
  *       200:
- *         description: Se o email existir, o link de reset foi enviado
+ *         description: Se o email existir, o token foi enviado
  *       500:
  *         description: Erro do servidor
  */
