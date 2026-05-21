@@ -74,7 +74,7 @@ model User {
 model PatientProfile {
   patientProfileId Int           @id @default(autoincrement())
   userId           Int           @unique
-  therapistId      Int?          
+  therapistId      Int           @default(21)
   city             String
   birthDate        DateTime
   careStatus       CareStatus    @default(NOT_STARTED)
