@@ -290,7 +290,7 @@ const updatePatientProfile = async (req, res) => {
 
     const mergedUpdated = {
       ...updated,
-      user: updatedUser || updated.user
+      name: updatedUser?.name || updated.user.name
     };
 
     return res.json({
