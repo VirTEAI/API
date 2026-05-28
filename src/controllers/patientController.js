@@ -278,17 +278,24 @@ const updatePatientProfile = async (req, res) => {
       data
     });
 
+    let updatedUser = null;
+
     if (req.body.name) {
 
-      await prisma.user.update({
+      updatedUser = await prisma.user.update({
         where: { userId },
         data: { name: normalizeString(req.body.name) }
       });
     }
 
+    const mergedUpdated = {
+      ...updated,
+      user: updatedUser || updated.user
+    };
+
     return res.json({
       message: 'Perfil atualizado com sucesso',
-      patientProfile: updated
+      patientProfile: mergedUpdated 
     });
   } catch (error) {
 
