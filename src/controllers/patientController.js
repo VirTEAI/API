@@ -259,6 +259,8 @@ const updatePatientProfile = async (req, res) => {
 
     const data = {};
 
+    if (req.body.name) data.name = normalizeString(req.body.name);
+
     if (req.body.city) data.city = normalizeString(req.body.city);
 
     if (req.body.birthDate) {
