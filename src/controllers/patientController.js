@@ -259,8 +259,6 @@ const updatePatientProfile = async (req, res) => {
 
     const data = {};
 
-    if (req.body.name) data.name = normalizeString(req.body.name);
-
     if (req.body.city) data.city = normalizeString(req.body.city);
 
     if (req.body.birthDate) {
@@ -279,6 +277,14 @@ const updatePatientProfile = async (req, res) => {
       where: { userId },
       data
     });
+
+    if (req.body.name) {
+
+      await prisma.user.update({
+        where: { userId },
+        data: { name: normalizeString(req.body.name) }
+      });
+    }
 
     return res.json({
       message: 'Perfil atualizado com sucesso',
