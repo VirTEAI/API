@@ -113,7 +113,8 @@ const register = async (req, res) => {
     }
 
     const isCityValidVar = await isCityValid(city);
-    return res.status(200).json({ isCityValid: isCityValidVar });
+    console.log('City:', city);
+    console.log('isCityValid:', isCityValidVar);
 
     if (!(await isCityValid(city))) {
 
