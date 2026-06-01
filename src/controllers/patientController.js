@@ -276,6 +276,38 @@ const updatePatientProfile = async (req, res) => {
       data.birthDate = date;
     }
 
+    let oldProfilePictureKey = existing.profilePictureKey || null;
+
+    if (req.file) {
+      
+      const ext = path.extname(req.file.originalname) || '.jpg';
+      const key = `patients/${userId}/avatar-${Date.now()}${ext}`;
+
+      await s3.send(new PutObjectCommand({
+        Bucket: process.env.FILEBASE_BUCKET,
+        Key: key,
+        Body: req.file.buffer,
+        ContentType: req.file.mimetype,
+      }));
+
+      const head = await s3.send(new HeadObjectCommand({
+        Bucket: process.env.FILEBASE_BUCKET,
+        Key: key,
+      }));
+
+      data.profilePictureKey = key;
+      data.profilePictureCid = head.Metadata?.cid || null;
+      data.profilePictureUrl = `${process.env.FILEBASE_GATEWAY_URL}/${data.profilePictureCid || key}`;
+
+      if (oldProfilePictureKey) {
+        
+        await s3.send(new DeleteObjectCommand({
+          Bucket: process.env.FILEBASE_BUCKET,
+          Key: oldProfilePictureKey,
+        }));
+      }
+    }
+
     const updated = await prisma.patientProfile.update({
       where: { userId },
       data

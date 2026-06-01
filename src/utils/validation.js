@@ -7,7 +7,7 @@ const parseDate = (value) => {
 
 const isValidId = (value) => Number.isInteger(value) && value > 0;
 
-const isCityValid = (value) => {
+const isCityValid = async (value) => {
   
   const fetchCity = await fetch(`https://brasilapi.com.br/api/cptec/v1/cidade/${value}`);
 
