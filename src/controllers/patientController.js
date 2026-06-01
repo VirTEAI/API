@@ -295,9 +295,7 @@ const updatePatientProfile = async (req, res) => {
         Key: key,
       }));
 
-      console.log(
-        `${process.env.FILEBASE_GATEWAY_URL}/ipfs/${data.profilePictureCid || key}`
-      );
+      
 
       data.profilePictureKey = key;
       data.profilePictureCid = head.Metadata?.cid || null;
@@ -311,6 +309,10 @@ const updatePatientProfile = async (req, res) => {
         }));
       }
     }
+
+    console.log(
+      `${process.env.FILEBASE_GATEWAY_URL}/ipfs/${data.profilePictureCid || key}`
+    );
 
     const updated = await prisma.patientProfile.update({
       where: { userId },
