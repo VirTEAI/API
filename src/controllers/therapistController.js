@@ -306,7 +306,7 @@ const updateTherapistProfile = async (req, res) => {
 
       data.profilePictureKey = key;
       data.profilePictureCid = head.Metadata?.cid || null;
-      data.profilePictureUrl = `${process.env.FILEBASE_GATEWAY_URL}/ipfs${data.profilePictureCid || key}`;
+      data.profilePictureUrl = `${process.env.FILEBASE_GATEWAY_URL}/ipfs/${data.profilePictureCid || key}`;
 
       if (oldProfilePictureKey) {
 

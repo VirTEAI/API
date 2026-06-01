@@ -310,10 +310,6 @@ const updatePatientProfile = async (req, res) => {
       }
     }
 
-    console.log(
-      `${process.env.FILEBASE_GATEWAY_URL}/ipfs/${data.profilePictureCid || key}`
-    );
-
     const updated = await prisma.patientProfile.update({
       where: { userId },
       data,
