@@ -295,6 +295,10 @@ const updatePatientProfile = async (req, res) => {
         Key: key,
       }));
 
+      console.log(
+        `${process.env.FILEBASE_GATEWAY_URL}/ipfs/${data.profilePictureCid || key}`
+      );
+
       data.profilePictureKey = key;
       data.profilePictureCid = head.Metadata?.cid || null;
       data.profilePictureUrl = `${process.env.FILEBASE_GATEWAY_URL}/ipfs/${data.profilePictureCid || key}`;
