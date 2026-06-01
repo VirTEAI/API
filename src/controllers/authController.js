@@ -65,7 +65,7 @@ const register = async (req, res) => {
     const name = String(req.body.name || '').trim();
     const email = normalizeEmail(req.body.email);
     const password = req.body.password;
-    const city = normalizeString(req.body.city);
+    let city = normalizeString(req.body.city);
     const birthDate = parseDate(req.body.birthDate);
     const role = String(req.body.role).trim().toUpperCase();
 
@@ -119,7 +119,7 @@ const register = async (req, res) => {
       return res.status(400).json({ error: 'Cidade inválida' });
     } else {
 
-      data.city = cityData.name;
+      city = cityData.name;
     }
 
     if (role === 'THERAPIST') {
