@@ -10,13 +10,16 @@ const isValidId = (value) => Number.isInteger(value) && value > 0;
 const isCityValid = async (value) => {
   
   const fetchCity = await fetch(`https://brasilapi.com.br/api/cptec/v1/cidade/${value}`);
+  const data = await fetchCity.json();
 
-  if (fetchCity.type === "city_error") {
+  if (data.type === "city_error") {
 
-    return fetchCity.json();
+    return false;
   } else {
 
-    return fetchCity.json();
+    return {
+      name: data[0].nome,
+    };
   }
 }
 

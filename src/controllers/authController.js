@@ -112,13 +112,14 @@ const register = async (req, res) => {
       });
     }
 
-    const isCityValidVar = await isCityValid(city);
-    console.log('City:', city);
-    console.log('isCityValid:', isCityValidVar);
+    const cityData = await isCityValid(city);
 
-    if (!(await isCityValid(city))) {
+    if (!cityData) {
 
       return res.status(400).json({ error: 'Cidade inválida' });
+    } else {
+
+      data.city = cityData.name;
     }
 
     if (role === 'THERAPIST') {
