@@ -13,10 +13,10 @@ const isCityValid = async (value) => {
 
   if (fetchCity.type === "city_error") {
 
-    return false;
+    return fetchCity;
   } else {
 
-    return true;
+    return fetchCity;
   }
 }
 

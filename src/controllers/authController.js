@@ -112,7 +112,10 @@ const register = async (req, res) => {
       });
     }
 
-    if (!await isCityValid(city)) {
+    const isCityValidVar = await isCityValid(city);
+    return isCityValidVar;
+
+    if (!(await isCityValid(city))) {
 
       return res.status(400).json({ error: 'Cidade inválida' });
     }
