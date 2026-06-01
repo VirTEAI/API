@@ -2,7 +2,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const { PrismaClient } = require('@prisma/client');
-const { normalizeString, parseDate } = require('../utils/validation');
+const { normalizeString, parseDate, isCityValid } = require('../utils/validation');
 const { google } = require('googleapis');
 
 const oauth2Client = new google.auth.OAuth2(
@@ -110,6 +110,11 @@ const register = async (req, res) => {
       return res.status(400).json({
         error: 'país, cidade e data de nascimento são obrigatórios'
       });
+    }
+
+    if (!await isCityValid(city)) {
+
+      return res.status(400).json({ error: 'Cidade inválida' });
     }
 
     if (role === 'THERAPIST') {

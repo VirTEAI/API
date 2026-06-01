@@ -12,6 +12,7 @@ const {
 
 const auth = require('../middlewares/authMiddleware');
 const role = require('../middlewares/roleMiddleware');
+const upload = require('../middlewares/multer');
 
 const router = express.Router();
 
@@ -196,7 +197,7 @@ router.get('/:userId', auth, getTherapistProfileById);
  *       500:
  *         description: Erro do servidor
  */
-router.put('/update', auth, role('THERAPIST'), updateTherapistProfile);
+router.put('/update', auth, role('THERAPIST'), upload.single('profilePicture'), updateTherapistProfile);
 
 /**
  * @openapi

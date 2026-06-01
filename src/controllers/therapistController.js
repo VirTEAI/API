@@ -1,4 +1,7 @@
 const { PrismaClient } = require('@prisma/client');
+const path = require('path');
+const { PutObjectCommand, HeadObjectCommand, DeleteObjectCommand } = require('@aws-sdk/client-s3');
+const s3 = require('../config/filebase');
 const { parseDate, normalizeString } = require('../utils/validation');
 
 const prisma = new PrismaClient();
@@ -280,6 +283,38 @@ const updateTherapistProfile = async (req, res) => {
       }
 
       data.attendanceModality = req.body.attendanceModality;
+    }
+
+    let oldProfilePictureKey = existing.profilePictureKey || null;
+
+    if (req.file) {
+      
+      const ext = path.extname(req.file.originalname) || '.jpg';
+      const key = `therapists/${userId}/avatar-${Date.now()}${ext}`;
+
+      await s3.send(new PutObjectCommand({
+        Bucket: process.env.FILEBASE_BUCKET,
+        Key: key,
+        Body: req.file.buffer,
+        ContentType: req.file.mimetype,
+      }));
+
+      const head = await s3.send(new HeadObjectCommand({
+        Bucket: process.env.FILEBASE_BUCKET,
+        Key: key,
+      }));
+
+      data.profilePictureKey = key;
+      data.profilePictureCid = head.Metadata?.cid || null;
+      data.profilePictureUrl = `${process.env.FILEBASE_GATEWAY_URL}/${data.profilePictureCid || key}`;
+
+      if (oldProfilePictureKey) {
+        
+        await s3.send(new DeleteObjectCommand({
+          Bucket: process.env.FILEBASE_BUCKET,
+          Key: oldProfilePictureKey,
+        }));
+      }
     }
 
     const updated = await prisma.therapistProfile.update({

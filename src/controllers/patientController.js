@@ -1,4 +1,7 @@
 const { PrismaClient } = require('@prisma/client');
+const path = require('path');
+const { PutObjectCommand, HeadObjectCommand, DeleteObjectCommand } = require('@aws-sdk/client-s3');
+const s3 = require('../config/filebase');
 const { normalizeString, parseDate } = require('../utils/validation');
 
 const prisma = new PrismaClient();

@@ -7,8 +7,22 @@ const parseDate = (value) => {
 
 const isValidId = (value) => Number.isInteger(value) && value > 0;
 
+const isCityValid = (value) => {
+  
+  const fetchCity = await fetch(`https://brasilapi.com.br/api/cptec/v1/cidade/${value}`);
+
+  if (fetchCity.type === "city_error") {
+
+    return false;
+  } else {
+
+    return true;
+  }
+}
+
 module.exports = {
   normalizeString,
   parseDate,
-  isValidId
+  isValidId,
+  isCityValid
 };

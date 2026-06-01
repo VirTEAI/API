@@ -77,6 +77,9 @@ model PatientProfile {
   therapistId      Int           @default(21)
   city             String
   birthDate        DateTime
+  profilePictureUrl String?
+  profilePictureKey String?
+  profilePictureCid String?
   careStatus       CareStatus    @default(NOT_STARTED)
   test10Score      Int           @default(0)
   test50Score      Int           @default(0)
@@ -103,6 +106,9 @@ model TherapistProfile {
   specialty            String
   experience           String
   attendanceModality   AttendanceModality  @default(ONLINE)
+  profilePictureUrl    String?
+  profilePictureKey    String?
+  profilePictureCid    String?
   createdAt            DateTime             @default(now())
   updatedAt            DateTime             @updatedAt
 

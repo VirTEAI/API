@@ -11,6 +11,7 @@ const {
 
 const auth = require('../middlewares/authMiddleware');
 const role = require('../middlewares/roleMiddleware');
+const upload = require('../middlewares/multer');
 
 const router = express.Router();
 
@@ -200,6 +201,6 @@ router.patch('/care-status', auth, role('THERAPIST', 'ADMIN'), updatePatientProf
  *       500:
  *         description: Erro do servidor
  */
-router.put('/update', auth, role('PATIENT'), updatePatientProfile);
+router.put('/update', auth, role('PATIENT'), upload.single('profilePicture'), updatePatientProfile);
 
 module.exports = router;
