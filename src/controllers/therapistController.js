@@ -309,7 +309,7 @@ const updateTherapistProfile = async (req, res) => {
       data.profilePictureUrl = `${process.env.FILEBASE_GATEWAY_URL}/${data.profilePictureCid || key}`;
 
       if (oldProfilePictureKey) {
-        
+
         await s3.send(new DeleteObjectCommand({
           Bucket: process.env.FILEBASE_BUCKET,
           Key: oldProfilePictureKey,
@@ -319,7 +319,10 @@ const updateTherapistProfile = async (req, res) => {
 
     const updated = await prisma.therapistProfile.update({
       where: { userId },
-      data
+      data,
+      include: {
+        user: true
+      }
     });
 
     let updatedUser = null;
