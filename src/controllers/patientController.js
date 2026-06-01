@@ -297,7 +297,7 @@ const updatePatientProfile = async (req, res) => {
 
       data.profilePictureKey = key;
       data.profilePictureCid = head.Metadata?.cid || null;
-      data.profilePictureUrl = `${process.env.FILEBASE_GATEWAY_URL}/${data.profilePictureCid || key}`;
+      data.profilePictureUrl = `${process.env.FILEBASE_GATEWAY_URL}/ipfs/${data.profilePictureCid || key}`;
 
       if (oldProfilePictureKey) {
         
@@ -310,7 +310,10 @@ const updatePatientProfile = async (req, res) => {
 
     const updated = await prisma.patientProfile.update({
       where: { userId },
-      data
+      data,
+      include: {
+        user: true
+      }
     });
 
     let updatedUser = null;
