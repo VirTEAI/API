@@ -1,8 +1,6 @@
-const { PrismaClient } = require('@prisma/client');
+const prisma = require('../config/prisma');
 const { scoreTest10, scoreTest50 } = require("../services/scoringService");
 const { getPatientProfileFromUserId } = require('../services/getProfilesService');
-
-const prisma = new PrismaClient();
 
 function validateAnswers(answers) {
 

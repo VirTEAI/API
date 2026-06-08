@@ -1,7 +1,5 @@
-const { PrismaClient } = require('@prisma/client');
+const prisma = require('../config/prisma');
 const crypto = require('crypto');
-
-const prisma = new PrismaClient();
 
 const SESSION_TTL_MS = 3 * 60 * 60 * 1000;
 

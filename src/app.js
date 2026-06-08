@@ -1,35 +1,34 @@
 const express = require('express');
-const { PrismaClient } = require('@prisma/client');
 const cors = require('cors');
 const helmet = require('helmet');
+const compression = require('compression');
 const rateLimit = require('express-rate-limit');
 const { swaggerUi, swaggerSpec } = require('../swagger.js');
-console.log('swaggerUi:', swaggerUi);
+const prisma = require('./config/prisma');
 
 const app = express();
-
-// const prisma = new PrismaClient({
-//   log: process.env.NODE_ENV === 'development'
-//     ? ['query', 'info', 'warn', 'error']
-//     : ['warn', 'error']
-// });
-
-const prisma = new PrismaClient({
-  log: ['query', 'info', 'warn', 'error'],
- errorFormat: 'pretty'
-});
 
 app.set('trust proxy', 1);
 
 app.use(helmet());
+app.use(compression());
 
 app.use(express.json());
 
-// CORS configuration — liberado para qualquer origem.
-// Usa `origin: true` (reflete a origem do request) para manter compatibilidade
-// com `credentials: true` em navegadores (que rejeitam `*` quando há credenciais).
+// CORS — allowlist via env ALLOWED_ORIGINS (vírgula-separado).
+// Se ALLOWED_ORIGINS estiver vazio, libera qualquer origem (dev). Em prod, sempre defina a env.
+const allowedOrigins = (process.env.ALLOWED_ORIGINS || '')
+  .split(',')
+  .map((o) => o.trim())
+  .filter(Boolean);
+
 app.use(cors({
-  origin: true,
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.length === 0) return callback(null, true);
+    if (allowedOrigins.includes(origin)) return callback(null, true);
+    return callback(new Error('Origem não permitida pelo CORS'));
+  },
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true

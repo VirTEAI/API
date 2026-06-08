@@ -1,10 +1,13 @@
-const { PrismaClient } = require('@prisma/client');
+const prisma = require('../config/prisma');
 const path = require('path');
 const { PutObjectCommand, HeadObjectCommand, DeleteObjectCommand } = require('@aws-sdk/client-s3');
 const s3 = require('../config/filebase');
-const { parseDate, normalizeString } = require('../utils/validation');
+const { parseDate, normalizeString, isCityValid } = require('../utils/validation');
+const { parsePagination } = require('../utils/pagination');
 
-const prisma = new PrismaClient();
+const CRP_REGEX = /^(?:CRP\s*)?\d{2}\/\d{4,6}$/i;
+const isValidCrp = (value) => typeof value === 'string' && CRP_REGEX.test(value.trim());
+const normalizeCrp = (value) => `CRP ${String(value).trim().toUpperCase().replace(/^CRP\s*/, '')}`;
 
 // const createTherapistProfile = async (req, res) => {
 
@@ -123,7 +126,11 @@ const getAllTherapistProfiles = async (req, res) => {
 
   try {
 
+    const { skip, take } = parsePagination(req.query);
+
     const profiles = await prisma.therapistProfile.findMany({
+      ...(skip !== undefined ? { skip } : {}),
+      ...(take !== undefined ? { take } : {}),
       include: {
         user: {
           select: {
@@ -256,8 +263,42 @@ const updateTherapistProfile = async (req, res) => {
 
     const data = {};
 
-    if (req.body.professionalRegister) data.professionalRegister = normalizeString(req.body.professionalRegister);
-    if (req.body.city) data.city = normalizeString(req.body.city);
+    if (req.body.professionalRegister) {
+
+      if (!isValidCrp(req.body.professionalRegister)) {
+
+        return res.status(400).json({ error: 'CRP inválido. Use o formato "CRP 00/000000".' });
+      }
+
+      const normalizedCrp = normalizeCrp(req.body.professionalRegister);
+
+      if (normalizedCrp !== existing.professionalRegister) {
+
+        const existingCrp = await prisma.therapistProfile.findFirst({
+          where: { professionalRegister: normalizedCrp, NOT: { userId } }
+        });
+
+        if (existingCrp) {
+
+          return res.status(409).json({ error: 'CRP já cadastrado' });
+        }
+      }
+
+      data.professionalRegister = normalizedCrp;
+    }
+
+    if (req.body.city) {
+
+      const cityData = await isCityValid(req.body.city);
+
+      if (!cityData) {
+
+        return res.status(400).json({ error: 'Cidade inválida' });
+      }
+
+      data.city = cityData.name;
+    }
+
     if (req.body.specialty) data.specialty = normalizeString(req.body.specialty);
     if (req.body.experience) data.experience = normalizeString(req.body.experience);
 

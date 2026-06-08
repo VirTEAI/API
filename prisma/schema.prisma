@@ -74,7 +74,7 @@ model User {
 model PatientProfile {
   patientProfileId Int           @id @default(autoincrement())
   userId           Int           @unique
-  therapistId      Int           @default(21)
+  therapistId      Int?
   city             String
   birthDate        DateTime
   profilePictureUrl String?
@@ -100,7 +100,7 @@ model PatientProfile {
 model TherapistProfile {
   therapistProfileId    Int                @id @default(autoincrement())
   userId                Int                @unique
-  professionalRegister String
+  professionalRegister String             @unique
   city                 String
   birthDate            DateTime
   specialty            String

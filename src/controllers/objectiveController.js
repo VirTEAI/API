@@ -1,8 +1,6 @@
-const { PrismaClient } = require('@prisma/client');
+const prisma = require('../config/prisma');
 const { getTherapistProfileFromUserId, getPatientProfileFromUserId } = require('../services/getProfilesService');
 const { normalizeString, isValidId } = require('../utils/validation');
-
-const prisma = new PrismaClient();
 
 const createObjective = async (req, res) => {
 
@@ -43,7 +41,7 @@ const createObjective = async (req, res) => {
 
         return res.status(404).json({ error: 'Perfil de terapeuta não encontrado' });
       }
-      therapistId = therapistProfile.therapistProfileId;
+      therapistId = therapistProfile.userId;
     } else {
 
       therapistId = Number(req.body.therapistId);
@@ -91,7 +89,7 @@ const listObjectives = async (req, res) => {
         return res.status(404).json({ error: 'Perfil de paciente não encontrado' });
       }
 
-      where = { patientId: patientProfile.patientProfileId };
+      where = { patientId: patientProfile.userId };
     }
 
     if (role === 'THERAPIST') {
@@ -103,7 +101,7 @@ const listObjectives = async (req, res) => {
         return res.status(404).json({ error: 'Perfil de terapeuta não encontrado' });
       }
 
-      where = { therapistId: therapistProfile.therapistProfileId };
+      where = { therapistId: therapistProfile.userId };
     }
 
     const objectives = await prisma.therapeuticObjective.findMany({
@@ -221,7 +219,7 @@ const updateObjective = async (req, res) => {
 
       const therapistProfile = await getTherapistProfileFromUserId(userId);
 
-      if (!therapistProfile || therapistProfile.therapistProfileId !== existing.therapistId) {
+      if (!therapistProfile || therapistProfile.userId !== existing.therapistId) {
 
         return res.status(403).json({ error: 'Você não pode alterar este objetivo' });
       }
@@ -284,7 +282,7 @@ const deleteObjective = async (req, res) => {
 
       const therapistProfile = await getTherapistProfileFromUserId(userId);
 
-      if (!therapistProfile || therapistProfile.therapistProfileId !== existing.therapistId) {
+      if (!therapistProfile || therapistProfile.userId !== existing.therapistId) {
 
         return res.status(403).json({ error: 'Você não pode excluir este objetivo' });
       }

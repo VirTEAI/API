@@ -147,7 +147,7 @@ router.get('/patients', auth, role('THERAPIST'), getTherapistPatients);
  *       500:
  *         description: Erro do servidor
  */
-router.get('/:userId', auth, getTherapistProfileById);
+router.get('/:userId', auth, role('PATIENT', 'THERAPIST', 'ADMIN'), getTherapistProfileById);
 
 /**
  * @openapi

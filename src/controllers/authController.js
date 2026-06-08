@@ -1,7 +1,10 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
-const { PrismaClient } = require('@prisma/client');
+const path = require('path');
+const { PutObjectCommand, HeadObjectCommand } = require('@aws-sdk/client-s3');
+const s3 = require('../config/filebase');
+const prisma = require('../config/prisma');
 const { normalizeString, parseDate, isCityValid } = require('../utils/validation');
 const { google } = require('googleapis');
 
@@ -34,8 +37,6 @@ function createRawMessage({ from, to, subject, html }) {
     .replace(/=+$/g, '');
 }
 
-const prisma = new PrismaClient();
-
 const JWT_SECRET = process.env.JWT_SECRET;
 const JWT_EXPIRES_IN = '1h';
 const RESET_TOKEN_EXPIRES_IN_MS = 60 * 60 * 1000;
@@ -57,6 +58,41 @@ const isStrongPassword = (password) =>
 
 const hashToken = (token) =>
   crypto.createHash('sha256').update(token).digest('hex');
+
+// CRP: 2 dígitos (UF do conselho) / 4 a 6 dígitos. Aceita "CRP 06/123456" ou "06/123456".
+const CRP_REGEX = /^(?:CRP\s*)?\d{2}\/\d{4,6}$/i;
+
+const isValidCrp = (value) => typeof value === 'string' && CRP_REGEX.test(value.trim());
+
+const normalizeCrp = (value) => {
+  const cleaned = String(value).trim().toUpperCase().replace(/^CRP\s*/, '');
+  return `CRP ${cleaned}`;
+};
+
+const uploadProfilePicture = async (file, scope, userId) => {
+  const ext = path.extname(file.originalname) || '.jpg';
+  const key = `${scope}/${userId}/avatar-${Date.now()}${ext}`;
+
+  await s3.send(new PutObjectCommand({
+    Bucket: process.env.FILEBASE_BUCKET,
+    Key: key,
+    Body: file.buffer,
+    ContentType: file.mimetype,
+  }));
+
+  const head = await s3.send(new HeadObjectCommand({
+    Bucket: process.env.FILEBASE_BUCKET,
+    Key: key,
+  }));
+
+  const cid = head.Metadata?.cid || null;
+
+  return {
+    profilePictureKey: key,
+    profilePictureCid: cid,
+    profilePictureUrl: cid ? `${process.env.FILEBASE_GATEWAY_URL}/ipfs/${cid}` : null,
+  };
+};
 
 const register = async (req, res) => {
 
@@ -134,38 +170,61 @@ const register = async (req, res) => {
           error: 'Campos obrigatórios não preenchidos'
         });
       }
+
+      if (!isValidCrp(professionalRegister)) {
+
+        return res.status(400).json({
+          error: 'CRP inválido. Use o formato "CRP 00/000000".'
+        });
+      }
+
+      professionalRegister = normalizeCrp(professionalRegister);
+
+      const existingCrp = await prisma.therapistProfile.findFirst({
+        where: { professionalRegister }
+      });
+
+      if (existingCrp) {
+
+        return res.status(409).json({ error: 'CRP já cadastrado' });
+      }
     }
 
     const hashedPassword = await bcrypt.hash(password, 12);
 
-    const user = await prisma.user.create({
-      data: {
-        name,
-        email,
-        password: hashedPassword,
-        role
-      }
-    });
+    let profilePictureData = null;
 
-    const userId = Number(user.userId);
+    if (req.file) {
+
+      try {
+
+        profilePictureData = await uploadProfilePicture(
+          req.file,
+          role === 'PATIENT' ? 'patients' : 'therapists',
+          `pending-${Date.now()}`
+        );
+      } catch (uploadErr) {
+
+        console.error('Erro ao subir foto de perfil:', uploadErr);
+        return res.status(500).json({ error: 'Erro ao enviar foto de perfil' });
+      }
+    }
 
     if (role === 'PATIENT') {
 
-      // const existingProfile = await prisma.patientProfile.findUnique({
-      //   where: { userId }
-      // });
+      const patientProfile = await prisma.$transaction(async (tx) => {
+        const user = await tx.user.create({
+          data: { name, email, password: hashedPassword, role }
+        });
 
-      // if (existingProfile) {
-
-      //   return res.status(409).json({ error: 'Perfil de paciente já existe' });
-      // }
-
-      const patientProfile = await prisma.patientProfile.create({
-        data: {
-          userId,
-          city,
-          birthDate
-        }
+        return tx.patientProfile.create({
+          data: {
+            userId: Number(user.userId),
+            city,
+            birthDate,
+            ...(profilePictureData || {})
+          }
+        });
       });
 
       return res.status(201).json({
@@ -174,30 +233,33 @@ const register = async (req, res) => {
       });
     } else if (role === 'THERAPIST') {
 
-      // const existing = await prisma.therapistProfile.findUnique({
-      //   where: { userId }
-      // });
+      const allowedModalities = ['ONLINE', 'PRESENTIAL', 'BOTH'];
+      const normalizedModality = attendanceModality && allowedModalities.includes(attendanceModality)
+        ? attendanceModality
+        : 'ONLINE';
 
-      // if (existing) {
-          
-      //   return res.status(409).json({ error: 'Perfil de terapeuta já existe' });
-      // }
+      const therapistProfile = await prisma.$transaction(async (tx) => {
+        const user = await tx.user.create({
+          data: { name, email, password: hashedPassword, role }
+        });
 
-      const profile = await prisma.therapistProfile.create({
-        data: {
-          userId,
-          professionalRegister,
-          city,
-          birthDate: parseDate(birthDate),
-          specialty,
-          experience,
-          attendanceModality: attendanceModality || 'ONLINE'
-        }
+        return tx.therapistProfile.create({
+          data: {
+            userId: Number(user.userId),
+            professionalRegister,
+            city,
+            birthDate,
+            specialty,
+            experience,
+            attendanceModality: normalizedModality,
+            ...(profilePictureData || {})
+          }
+        });
       });
 
       return res.status(201).json({
         message: 'Perfil de terapeuta criado com sucesso',
-        therapistProfile: profile
+        therapistProfile
       });
     }
 

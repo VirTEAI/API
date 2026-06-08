@@ -5,6 +5,7 @@ const {
     forgotPassword,
     resetPassword
 } = require('../controllers/authController');
+const upload = require('../middlewares/multer');
 
 const router = express.Router();
 
@@ -116,7 +117,7 @@ const router = express.Router();
  *       500:
  *         description: Erro do servidor
  */
-router.post('/register', register);
+router.post('/register', upload.single('profilePicture'), register);
 
 /**
  * @openapi

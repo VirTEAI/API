@@ -1,10 +1,9 @@
-const { PrismaClient } = require('@prisma/client');
+const prisma = require('../config/prisma');
 const path = require('path');
 const { PutObjectCommand, HeadObjectCommand, DeleteObjectCommand } = require('@aws-sdk/client-s3');
 const s3 = require('../config/filebase');
-const { normalizeString, parseDate } = require('../utils/validation');
-
-const prisma = new PrismaClient();
+const { normalizeString, parseDate, isCityValid } = require('../utils/validation');
+const { parsePagination } = require('../utils/pagination');
 
 // const createPatientProfile = async (req, res) => {
 
@@ -109,7 +108,11 @@ const getAllPatientProfiles = async (req, res) => {
 
   try {
 
+    const { skip, take } = parsePagination(req.query);
+
     const profiles = await prisma.patientProfile.findMany({
+      ...(skip !== undefined ? { skip } : {}),
+      ...(take !== undefined ? { take } : {}),
       include: {
         user: {
           select: {
@@ -199,7 +202,8 @@ const updatePatientProfileCareStatus = async (req, res) => {
 
     try {
 
-        const userId = req.body.userId;
+        const patientUserId = Number(req.body.userId);
+        const requesterId = req.user?.userId;
         const role = req.user?.role;
 
         if (role !== 'THERAPIST' && role !== 'ADMIN') {
@@ -207,13 +211,23 @@ const updatePatientProfileCareStatus = async (req, res) => {
             return res.status(403).json({ error: 'Apenas terapeutas e administradores podem atualizar o status de acompanhamento' });
         }
 
+        if (!Number.isInteger(patientUserId) || patientUserId <= 0) {
+
+            return res.status(400).json({ error: 'ID do paciente inválido' });
+        }
+
         const existing = await prisma.patientProfile.findUnique({
-            where: { userId }
+            where: { userId: patientUserId }
         });
 
         if (!existing) {
 
             return res.status(404).json({ error: 'Perfil de paciente não encontrado' });
+        }
+
+        if (role === 'THERAPIST' && existing.therapistId !== requesterId) {
+
+            return res.status(403).json({ error: 'Você não pode alterar o status de um paciente que não é seu' });
         }
 
         const allowed = ['NOT_STARTED', 'IN_PROGRESS', 'PAUSED', 'FINISHED'];
@@ -224,7 +238,7 @@ const updatePatientProfileCareStatus = async (req, res) => {
         }
 
         const updated = await prisma.patientProfile.update({
-            where: { userId },
+            where: { userId: patientUserId },
             data: { careStatus: req.body.careStatus }
         });
 
@@ -262,7 +276,17 @@ const updatePatientProfile = async (req, res) => {
 
     const data = {};
 
-    if (req.body.city) data.city = normalizeString(req.body.city);
+    if (req.body.city) {
+
+      const cityData = await isCityValid(req.body.city);
+
+      if (!cityData) {
+
+        return res.status(400).json({ error: 'Cidade inválida' });
+      }
+
+      data.city = cityData.name;
+    }
 
     if (req.body.birthDate) {
 
@@ -279,7 +303,7 @@ const updatePatientProfile = async (req, res) => {
     let oldProfilePictureKey = existing.profilePictureKey || null;
 
     if (req.file) {
-      
+
       const ext = path.extname(req.file.originalname) || '.jpg';
       const key = `patients/${userId}/avatar-${Date.now()}${ext}`;
 

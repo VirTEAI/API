@@ -1,8 +1,6 @@
-const { PrismaClient } = require('@prisma/client');
+const prisma = require('../config/prisma');
 const { getTherapistProfileFromUserId, getPatientProfileFromUserId } = require('../services/getProfilesService');
 const { normalizeString, isValidId } = require('../utils/validation');
-
-const prisma = new PrismaClient();
 
 const createScenario = async (req, res) => {
 
@@ -54,7 +52,7 @@ const createScenario = async (req, res) => {
         return res.status(404).json({ error: 'Perfil de terapeuta não encontrado' });
       }
 
-      therapistId = therapistProfile.therapistProfileId;
+      therapistId = therapistProfile.userId;
     } else {
 
       therapistId = Number(req.body.therapistId);
@@ -108,7 +106,7 @@ const listScenarios = async (req, res) => {
         return res.status(404).json({ error: 'Perfil de paciente não encontrado' });
       }
 
-      where = { patientId: patientProfile.patientProfileId };
+      where = { patientId: patientProfile.userId };
     }
 
     if (role === 'THERAPIST') {
@@ -120,7 +118,7 @@ const listScenarios = async (req, res) => {
         return res.status(404).json({ error: 'Perfil de terapeuta não encontrado' });
       }
 
-      where = { therapistId: therapistProfile.therapistProfileId };
+      where = { therapistId: therapistProfile.userId };
     }
 
     const scenarios = await prisma.scenario.findMany({
@@ -238,7 +236,7 @@ const updateScenario = async (req, res) => {
 
       const therapistProfile = await getTherapistProfileFromUserId(userId);
 
-      if (!therapistProfile || therapistProfile.therapistProfileId !== existing.therapistId) {
+      if (!therapistProfile || therapistProfile.userId !== existing.therapistId) {
 
         return res.status(403).json({ error: 'Você não pode alterar este cenário' });
       }
@@ -315,7 +313,7 @@ const deleteScenario = async (req, res) => {
 
       const therapistProfile = await getTherapistProfileFromUserId(userId);
 
-      if (!therapistProfile || therapistProfile.therapistProfileId !== existing.therapistId) {
+      if (!therapistProfile || therapistProfile.userId !== existing.therapistId) {
 
         return res.status(403).json({ error: 'Você não pode excluir este cenário' });
       }

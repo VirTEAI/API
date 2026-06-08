@@ -1,8 +1,6 @@
-const { PrismaClient } = require('@prisma/client');
+const prisma = require('../config/prisma');
 const { getTherapistProfileFromUserId, getPatientProfileFromUserId } = require('../services/getProfilesService');
 const { normalizeString, parseDate, isValidId } = require('../utils/validation');
-
-const prisma = new PrismaClient();
 
 const createConsultation = async (req, res) => {
 
@@ -120,7 +118,7 @@ const listConsultations = async (req, res) => {
         return res.status(404).json({ error: 'Perfil de paciente não encontrado' });
       }
 
-      where = { patientId: patientProfile.patientProfileId };
+      where = { patientId: patientProfile.userId };
     } else if (role === 'THERAPIST') {
 
       const therapistProfile = await getTherapistProfileFromUserId(userId);
@@ -130,7 +128,7 @@ const listConsultations = async (req, res) => {
         return res.status(404).json({ error: 'Perfil de terapeuta não encontrado' });
       }
 
-      where = { therapistId: therapistProfile.therapistProfileId };
+      where = { therapistId: therapistProfile.userId };
     }
 
     const consultations = await prisma.consultation.findMany({
@@ -253,7 +251,7 @@ const updateConsultation = async (req, res) => {
 
       const therapistProfile = await getTherapistProfileFromUserId(userId);
 
-      if (!therapistProfile || therapistProfile.therapistProfileId !== existing.therapistId) {
+      if (!therapistProfile || therapistProfile.userId !== existing.therapistId) {
 
         return res.status(403).json({ error: 'Você não pode alterar esta consulta' });
       }
@@ -305,7 +303,7 @@ const updateConsultation = async (req, res) => {
       data.objective = objective;
     }
 
-    if (req.body.score) {
+    if (req.body.score !== undefined) {
 
       const score = Number(req.body.score);
 
@@ -364,7 +362,7 @@ const deleteConsultation = async (req, res) => {
 
       const therapistProfile = await getTherapistProfileFromUserId(userId);
 
-      if (!therapistProfile || therapistProfile.therapistProfileId !== existing.therapistId) {
+      if (!therapistProfile || therapistProfile.userId !== existing.therapistId) {
 
         return res.status(403).json({ error: 'Você não pode excluir esta consulta' });
       }
